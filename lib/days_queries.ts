@@ -2,7 +2,9 @@
 
 import db from "@/lib/db";
 
-export async function createDay(userId: string, date: string, notes: string) {
+export async function createDay(userId: string, notes: string) {
+  const date = new Date().toISOString().split("T")[0];
+
   const dayExists = db
     .query("SELECT id FROM days WHERE user_id = ? AND date = ?")
     .get(userId, date);
