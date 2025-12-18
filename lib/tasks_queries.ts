@@ -2,7 +2,22 @@
 import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createTask(data: { name: string; sql: string }) {}
+export async function createTask(data: {
+  userId: string;
+  dayId?: string;
+  title: string;
+  description: string;
+  priority: number;
+}) {
+  const { userId, dayId, title, description, priority } = data;
+
+  db.prepare(
+    `
+    INSERT INTO tasks (user_id, day_id, title, description, priority)
+    VALUES (?, ?, ?, ?, ?)
+  `
+  ).run(userId, dayId || null, title, description, priority);
+}
 
 export async function completeTask(taskId: number, userId: number) {
   // Mark task as completed
