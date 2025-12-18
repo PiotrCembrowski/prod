@@ -17,7 +17,7 @@ db.run(`
     speed INTEGER DEFAULT 5,
     wisdom INTEGER DEFAULT 5,
     experience INTEGER DEFAULT 0,
-    level INTEGER DEFAULT 1,
+    level INTEGER DEFAULT 1
   )
 `);
 
