@@ -20,3 +20,12 @@ export async function createDay(userId: string, notes: string) {
   `
   ).run(userId, date, notes);
 }
+
+export async function getDayByUserId(userId: string) {
+  const date = new Date().toISOString().split("T")[0];
+
+  const query = db
+    .query("SELECT * FROM days WHERE user_id = ? AND date = ?")
+    .get(userId, date);
+  return query;
+}
