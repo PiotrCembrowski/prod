@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+
+import { useState } from "react";
+import { createTask } from "@/lib/actions";
 
 const pointValues = [
   {
@@ -64,7 +66,7 @@ export function AddTaskModal({ open, onOpenChange }: AddTaskModalProps) {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Here you would typically save to database
-    console.log("[v0] Task created:", {
+    console.log("Task created:", {
       name: taskName,
       description,
       points: customPoints || points,
@@ -92,7 +94,7 @@ export function AddTaskModal({ open, onOpenChange }: AddTaskModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form action={createTask} className="space-y-6">
           {/* Task Name */}
           <div className="space-y-2">
             <Label htmlFor="taskName">Quest Name</Label>

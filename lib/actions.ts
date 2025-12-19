@@ -9,6 +9,8 @@ export async function createTask(formData: FormData) {
   const description = formData.get("description") as string;
   const priority = parseInt(formData.get("priority") as string);
 
+  console.log("Creating task for user:", userId, title, description, priority);
+
   db.prepare(
     `
     INSERT INTO tasks (user_id, day_id, title, description, priority)
