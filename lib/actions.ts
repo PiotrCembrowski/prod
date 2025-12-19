@@ -2,14 +2,12 @@
 import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createTask(data: {
-  userId: string;
-  dayId?: string;
-  title: string;
-  description: string;
-  priority: number;
-}) {
-  const { userId, dayId, title, description, priority } = data;
+export async function createTask(formData: FormData) {
+  const userId = formData.get("userId") as string;
+  const dayId = formData.get("dayId") as string;
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const priority = parseInt(formData.get("priority") as string);
 
   db.prepare(
     `
