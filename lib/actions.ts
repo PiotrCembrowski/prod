@@ -45,3 +45,31 @@ export async function completeTask(taskId: number, userId: number) {
 
   revalidatePath("/dashboard");
 }
+
+export async function createDay(userId: string, notes: string) {
+  const date = new Date().toISOString().split("T")[0];
+
+  const dayExists = db
+    .query("SELECT id FROM days WHERE user_id = ? AND date = ?")
+    .get(userId, date);
+
+  if (dayExists) {
+    return;
+  }
+
+  db.prepare(
+    `
+    INSERT INTO days (user_id, date, notes)
+    VALUES (?, ?, ?)
+  `
+  ).run(userId, date, notes);
+}
+
+export async function getDayByUserId(userId: string) {
+  const date = new Date().toISOString().split("T")[0];
+
+  const query = db
+    .query("SELECT * FROM days WHERE user_id = ? AND date = ?")
+    .get(userId, date);
+  return query;
+}
