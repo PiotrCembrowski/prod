@@ -64,7 +64,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="knight-name" className="text-card-foreground">
               Knight Name
