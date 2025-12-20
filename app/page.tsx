@@ -86,6 +86,8 @@ export default function HomePage() {
           <Image
             src="/pixel-art-.jpg"
             alt="Knight character"
+            width={800}
+            height={600}
             className="mx-auto h-auto w-full rounded-xl border border-border shadow-2xl"
           />
         </div>
