@@ -1,12 +1,20 @@
+"use client";
+
+import { useActionState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sword, Shield } from "lucide-react";
-import { registerKnight } from "./actions";
+import { registerKnight, ActionState } from "./action";
 
 export default function RegisterPage() {
+  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
+    registerKnight,
+    { error: null }
+  );
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
@@ -24,7 +32,12 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form action={registerKnight} className="space-y-6">
+        <form action={formAction} className="space-y-6">
+          {state?.error && (
+            <div className="bg-destructive/15 text-destructive p-3 rounded-md text-sm">
+              {state.error}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="knight-name" className="text-card-foreground">
               Knight Name
@@ -79,8 +92,10 @@ export default function RegisterPage() {
 
           <Button
             type="submit"
+            disabled={isPending}
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
+            {isPending ? "Forging..." : "Forge Your Legend"}
             <Shield className="mr-2 h-4 w-4" />
             Forge Your Legend
           </Button>
