@@ -23,6 +23,8 @@ export async function registerKnight(
     return { error: "Passwords do not match!" };
   }
 
+  console.log("Registering knight:", rawFormData);
+
   try {
     await auth.api.signUpEmail({
       body: {

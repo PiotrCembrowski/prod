@@ -44,6 +44,7 @@ export default function RegisterPage() {
             </Label>
             <Input
               id="knight-name"
+              name="knight-name"
               type="text"
               placeholder="Sir Productive"
               className="bg-background text-foreground"
@@ -57,6 +58,7 @@ export default function RegisterPage() {
             </Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="knight@realm.com"
               className="bg-background text-foreground"
@@ -70,6 +72,7 @@ export default function RegisterPage() {
             </Label>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="Create a strong password"
               className="bg-background text-foreground"
@@ -83,6 +86,7 @@ export default function RegisterPage() {
             </Label>
             <Input
               id="confirm-password"
+              name="confirm-password"
               type="password"
               placeholder="Confirm your password"
               className="bg-background text-foreground"
@@ -97,7 +101,6 @@ export default function RegisterPage() {
           >
             {isPending ? "Forging..." : "Forge Your Legend"}
             <Shield className="mr-2 h-4 w-4" />
-            Forge Your Legend
           </Button>
         </form>
 
