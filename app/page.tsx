@@ -6,8 +6,35 @@ import { Sword, Shield, Trophy, Target } from "lucide-react";
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-4 py-20">
+      <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-xl font-bold text-foreground"
+          >
+            <Shield className="h-6 w-6 text-primary" />
+            <span>Knight Quest</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-foreground hover:text-primary"
+            >
+              <Link href="/login">Sign In</Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Link href="/register">Get Started</Link>
+            </Button>
+          </div>
+        </nav>
+      </header>
+      <section className="relative flex min-h-screen flex-col items-center justify-center px-4 py-20 pt-32">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
@@ -34,9 +61,20 @@ export default function HomePage() {
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <Link href="/dashboard">
+              <Link href="/register">
                 <Sword className="mr-2 h-5 w-5" />
                 Begin Your Journey
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-primary/20 text-foreground hover:bg-primary/10 bg-transparent"
+            >
+              <Link href="/login">
+                <Shield className="mr-2 h-5 w-5" />
+                Sign In
               </Link>
             </Button>
           </div>
@@ -130,9 +168,9 @@ export default function HomePage() {
             size="lg"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Link href="/dashboard">
+            <Link href="/register">
               <Shield className="mr-2 h-5 w-5" />
-              Enter the Dashboard
+              Create Your Knight
             </Link>
           </Button>
         </div>
