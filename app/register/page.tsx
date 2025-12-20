@@ -4,8 +4,49 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sword, Shield } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function RegisterPage() {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const name = formData.get("knight-name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirm-password") as string;
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const { data, error } = await authClient.signUp.email(
+        {
+          email,
+          password,
+          name,
+          callbackURL: "/dashboard",
+        },
+        {
+          onRequest: () => {
+            // Optionally show loading state
+          },
+          onSuccess: () => {
+            // Redirect to dashboard or sign-in page
+            window.location.href = "/dashboard";
+          },
+          onError: (ctx) => {
+            alert(ctx.error.message);
+          },
+        }
+      );
+    } catch (err) {
+      console.error("Sign-up error:", err);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
