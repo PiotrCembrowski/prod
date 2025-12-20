@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sword, Shield, Trophy, Target } from "lucide-react";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -82,7 +83,7 @@ export default function HomePage() {
 
         {/* Decorative Knight Image */}
         <div className="relative z-10 mt-16 w-full max-w-2xl">
-          <img
+          <Image
             src="/pixel-art-.jpg"
             alt="Knight character"
             className="mx-auto h-auto w-full rounded-xl border border-border shadow-2xl"
