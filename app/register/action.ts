@@ -1,8 +1,7 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 export type ActionState = {
   error?: string | null;
@@ -32,11 +31,10 @@ export async function registerKnight(
         password: rawFormData.password,
         name: rawFormData.name,
       },
-      headers: await headers(),
     });
   } catch (err) {
     const errorMessage =
-      err instanceof Error ? err.message : "An unknown error occurred";
+      err instanceof Error ? err.message : "Registration failed";
     return { error: errorMessage };
   }
 
