@@ -3,8 +3,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sword, Shield, Trophy, Target } from "lucide-react";
 import Image from "next/image";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const headersList = await headers();
+  const session = await auth.api.getSession({
+    headers: headersList,
+  });
+
+  if (!session) {
+    console.log("❌ Dashboard Access Denied");
+    console.log("   Cookie Header:", headersList.get("cookie"));
+  }
+
+  const user = session?.user;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
@@ -20,17 +34,21 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Button
               asChild
-              variant="ghost"
-              className="text-foreground hover:text-primary"
-            >
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button
-              asChild
               size="sm"
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <Link href="/register">Get Started</Link>
+              <Link href={user ? "/dashboard" : "/register"}>
+                {user ? "Dashboard" : "Get Started"}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="text-foreground hover:text-primary"
+            >
+              <Link href={user ? "/" : "/login"}>
+                {user ? "Sign Out" : "Sign In"}
+              </Link>
             </Button>
           </div>
         </nav>
