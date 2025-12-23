@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Sword } from "lucide-react";
 import { useActionState } from "react";
-import { loginKnight, ActionState } from "./action";
+import { loginKnight } from "./action";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginKnight, {

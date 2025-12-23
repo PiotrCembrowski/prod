@@ -24,15 +24,27 @@ export function DashboardTabs() {
                 Knight Quest
               </span>
             </div>
-
-            <Button
-              onClick={() => setIsAddTaskOpen(true)}
-              size="sm"
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Add Quest
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => setIsAddTaskOpen(true)}
+                size="sm"
+                className="gap-2 cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                Add Quest
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 cursor-pointer"
+                onClick={() => {
+                  // Placeholder for future settings functionality
+                  alert("Settings clicked!");
+                }}
+              >
+                Log Out
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
