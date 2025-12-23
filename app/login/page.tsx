@@ -4,8 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Sword } from "lucide-react";
+import { loginKnight } from "./action";
+import { useActionState } from "react";
 
 export default function LoginPage() {
+  const [state, formAction, isPending] = useActionState(loginKnight, {
+    error: null,
+  });
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
@@ -23,13 +29,14 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form className="space-y-6">
+        <form action={formAction} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-card-foreground">
               Email
             </Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="knight@realm.com"
               className="bg-background text-foreground"
@@ -51,6 +58,7 @@ export default function LoginPage() {
             </div>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="Enter your password"
               className="bg-background text-foreground"
