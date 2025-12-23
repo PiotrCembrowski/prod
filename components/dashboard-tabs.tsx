@@ -8,6 +8,7 @@ import { AddTaskModal } from "@/components/add-task-modal";
 import { TasksTab } from "@/components/tasks-tab";
 import { AchievementsTab } from "@/components/achievements-tab";
 import { KnightDashboard } from "@/components/knight-dashboard";
+import { logOutKnight } from "@/app/login/action";
 
 export function DashboardTabs() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -37,10 +38,7 @@ export function DashboardTabs() {
                 variant="ghost"
                 size="sm"
                 className="gap-2 cursor-pointer"
-                onClick={() => {
-                  // Placeholder for future settings functionality
-                  alert("Settings clicked!");
-                }}
+                onClick={logOutKnight}
               >
                 Log Out
               </Button>
