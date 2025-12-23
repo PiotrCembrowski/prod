@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { headers, cookies } from "next/headers";
+import { headers } from "next/headers";
 
 export type ActionState = {
   error?: string | null;
@@ -24,28 +24,13 @@ export async function loginKnight(
   );
 
   try {
-    const response = await auth.api.signInEmail({
+    await auth.api.signInEmail({
       body: {
         email: rawFormData.email,
         password: rawFormData.password,
       },
       headers: await headers(),
     });
-
-    if (response?.token) {
-      const cookieStore = await cookies();
-
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7);
-
-      cookieStore.set("better-auth.session_token", response.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        expires: expiresAt,
-      });
-    }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Login failed";
     return { error: errorMessage };

@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { BunSqliteDialect } from "kysely-bun-worker/normal";
 import path from "path";
+import { nextCookies } from "better-auth/next-js";
 
 const dbPath = path.join(process.cwd(), "mydb.sqlite");
 
@@ -10,6 +11,7 @@ const dialect = new BunSqliteDialect({
 
 export const auth = betterAuth({
   database: dialect,
+  plugins: [nextCookies()],
   emailAndPassword: {
     enabled: true,
   },
