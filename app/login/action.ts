@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers"; // <--- Import this
+import { headers, cookies } from "next/headers";
 
 export type ActionState = {
   error?: string | null;
@@ -17,20 +17,49 @@ export async function loginKnight(
     password: formData.get("password") as string,
   };
 
+  console.log(
+    "Attempting to log in user:",
+    rawFormData.email,
+    rawFormData.password
+  );
+
   try {
-    await auth.api.signInEmail({
+    const response = await auth.api.signInEmail({
       body: {
         email: rawFormData.email,
         password: rawFormData.password,
       },
-      // CRITICAL: Pass headers so the cookie gets set in the browser
       headers: await headers(),
     });
+
+    if (response?.token) {
+      const cookieStore = await cookies();
+
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
+      cookieStore.set("better-auth.session_token", response.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        expires: expiresAt,
+      });
+    }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Login failed";
     return { error: errorMessage };
   }
 
-  // If we get here, login succeeded and cookie is set
   redirect("/dashboard");
+}
+
+export async function logOutKnight() {
+  await auth.api.signOut({
+    headers: await headers(),
+  });
+
+  console.log("User logged out");
+
+  redirect("/");
 }

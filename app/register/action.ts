@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export type ActionState = {
   error?: string | null;
@@ -31,6 +32,8 @@ export async function registerKnight(
         password: rawFormData.password,
         name: rawFormData.name,
       },
+
+      headers: await headers(),
     });
   } catch (err) {
     const errorMessage =
