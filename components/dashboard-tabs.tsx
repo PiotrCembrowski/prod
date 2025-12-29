@@ -10,9 +10,11 @@ import { AchievementsTab } from "@/components/achievements-tab";
 import { KnightDashboard } from "@/components/knight-dashboard";
 import { logOutKnight } from "@/app/login/action";
 
-export function DashboardTabs() {
+export function DashboardTabs(user: any) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+
+  console.log("🛡️ Knight Dashboard Loaded for:", user);
 
   return (
     <>

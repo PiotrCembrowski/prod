@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardTabs />
+      <DashboardTabs user={user} />
     </div>
   );
 }
