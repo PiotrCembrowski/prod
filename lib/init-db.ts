@@ -1,22 +1,31 @@
 import { Database } from "bun:sqlite";
 import path from "path";
 
-// Same absolute path logic
+// Absolute DB path
 const dbPath = path.join(process.cwd(), "mydb.sqlite");
 const db = new Database(dbPath, { create: true });
 
-// 1. Drop existing tables to ensure a clean slate
+// Enable foreign keys (IMPORTANT in SQLite)
+db.run("PRAGMA foreign_keys = ON");
+
 console.log("🗑️  Cleaning old tables...");
+
+// Auth / core tables
 db.run("DROP TABLE IF EXISTS session");
 db.run("DROP TABLE IF EXISTS account");
 db.run("DROP TABLE IF EXISTS verification");
 db.run("DROP TABLE IF EXISTS user");
 db.run("DROP TABLE IF EXISTS users");
-db.run("DROP TABLE IF EXISTS tasks"); // Clean up your old tasks table too
 
-// 2. Create Tables
+// App tables
+db.run("DROP TABLE IF EXISTS tasks");
+db.run("DROP TABLE IF EXISTS days");
+
 console.log("🏗️  Creating new tables...");
 
+// --------------------
+// User
+// --------------------
 db.run(`
   CREATE TABLE user (
     id TEXT PRIMARY KEY,
@@ -36,6 +45,9 @@ db.run(`
   )
 `);
 
+// --------------------
+// Session
+// --------------------
 db.run(`
   CREATE TABLE session (
     id TEXT PRIMARY KEY,
@@ -50,6 +62,9 @@ db.run(`
   )
 `);
 
+// --------------------
+// Account
+// --------------------
 db.run(`
   CREATE TABLE account (
     id TEXT PRIMARY KEY,
@@ -69,6 +84,9 @@ db.run(`
   )
 `);
 
+// --------------------
+// Verification
+// --------------------
 db.run(`
   CREATE TABLE verification (
     id TEXT PRIMARY KEY,
@@ -80,8 +98,43 @@ db.run(`
   )
 `);
 
+// --------------------
+// Days (one per user per date)
+// --------------------
+db.run(`
+  CREATE TABLE days (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    date TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, date),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+  )
+`);
+
+// --------------------
+// Tasks
+// --------------------
+db.run(`
+  CREATE TABLE tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    day_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    priority INTEGER NOT NULL,
+    xp INTEGER NOT NULL,
+    completed INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
+  )
+`);
+
 console.log("✅ Database initialized successfully!");
 console.log(
   "📋 Tables found:",
   db.query("SELECT name FROM sqlite_master WHERE type='table'").all()
 );
+
+export { db };
