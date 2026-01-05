@@ -2,46 +2,41 @@
 import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createDayWithTask(formData: FormData) {
+export async function createTask(formData: FormData) {
   const userId = formData.get("userId") as string;
-  const date = formData.get("date") as string; // e.g. "2026-01-05"
+  const date = formData.get("date") as string;
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const priority = parseInt(formData.get("priority") as string);
+  const priority = Number(formData.get("priority"));
 
   if (!userId || !date || !title) {
     throw new Error("Missing required fields");
   }
 
-  console.log("Creating day + task for user:", userId, date, title);
-
-  const insertDayAndTask = db.transaction(() => {
-    // 1. Create the day
+  const transaction = db.transaction(() => {
+    // 1. Create day
     const dayResult = db
       .prepare(
         `
         INSERT INTO days (user_id, date)
         VALUES (?, ?)
-        `
+      `
       )
       .run(userId, date);
 
     const dayId = dayResult.lastInsertRowid;
 
-    // 2. Create the task for that day
+    // 2. Create task
     db.prepare(
       `
       INSERT INTO tasks (user_id, day_id, title, description, priority)
       VALUES (?, ?, ?, ?, ?)
-      `
+    `
     ).run(userId, dayId, title, description, priority);
-
-    return dayId;
   });
 
-  const dayId = insertDayAndTask();
-  return dayId;
+  transaction();
 }
 
 export async function completeTask(taskId: number, userId: number) {

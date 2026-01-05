@@ -62,23 +62,29 @@ export function AddTaskModal({ open, onOpenChange }: AddTaskModalProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // Here you would typically save to database
     console.log("Task created:", {
       name: taskName,
       description,
       points: customPoints || points,
     });
 
-    // Reset form
     setTaskName("");
     setDescription("");
     setPoints("");
     setCustomPoints("");
     setIsSubmitting(false);
     onOpenChange(false);
+
+    const formData = new FormData();
+    formData.append("userId", user.id);
+    formData.append("date", "2026-01-05");
+    formData.append("title", "Finish report");
+    formData.append("description", "Finalize Q1 metrics");
+    formData.append("priority", "1");
+
+    await createTask(formData);
   };
 
   return (
