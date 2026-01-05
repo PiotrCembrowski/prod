@@ -88,7 +88,11 @@ export function DashboardTabs({ user }: any) {
         </Tabs>
       </div>
 
-      <AddTaskModal open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen} />
+      <AddTaskModal
+        id={user.id}
+        open={isAddTaskOpen}
+        onOpenChange={setIsAddTaskOpen}
+      />
     </>
   );
 }
