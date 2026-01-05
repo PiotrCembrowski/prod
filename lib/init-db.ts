@@ -102,14 +102,14 @@ db.run(`
 // Days (one per user per date)
 // --------------------
 db.run(`
-  CREATE TABLE days (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    date TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id, date),
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-  )
+    CREATE TABLE days (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      date TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, date),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
 `);
 
 // --------------------
@@ -126,9 +126,9 @@ db.run(`
     xp INTEGER NOT NULL,
     completed INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
-  )
+  );
 `);
 
 console.log("✅ Database initialized successfully!");
