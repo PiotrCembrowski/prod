@@ -17,7 +17,7 @@ export function DashboardTabs({ user }: any) {
   console.log("🛡️ Knight Dashboard Loaded for:", user);
 
   if (user) {
-    console.log("   Knight Username:", user.name);
+    console.log("Knight Username:", user.name);
   }
 
   return (
