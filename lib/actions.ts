@@ -21,10 +21,32 @@ export async function createTask(formData: FormData) {
     throw new Error("Missing required fields");
   }
 
+  // 1️⃣ Ensure tables exist (safe to call multiple times)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS days (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      date TEXT NOT NULL,
+      UNIQUE(user_id, date)
+    );
+
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      day_id INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT,
+      priority INTEGER NOT NULL,
+      xp INTEGER NOT NULL,
+      completed INTEGER DEFAULT 0,
+      FOREIGN KEY (day_id) REFERENCES days(id)
+    );
+  `);
+
   const priority = xpToPriority(xp);
 
+  // 2️⃣ Transaction: find/create day + insert task
   const transaction = db.transaction(() => {
-    // 1️⃣ Find or create day
     const existingDay = db
       .prepare(
         `
@@ -51,7 +73,6 @@ export async function createTask(formData: FormData) {
       dayId = Number(result.lastInsertRowid);
     }
 
-    // 2️⃣ Create task
     db.prepare(
       `
       INSERT INTO tasks (user_id, day_id, title, description, priority, xp)
