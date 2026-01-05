@@ -27,7 +27,7 @@ console.log("🏗️  Creating new tables...");
 // User
 // --------------------
 db.run(`
-  CREATE TABLE user (
+  CREATE TABLE users (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
