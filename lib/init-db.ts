@@ -15,7 +15,6 @@ db.run("DROP TABLE IF EXISTS session");
 db.run("DROP TABLE IF EXISTS account");
 db.run("DROP TABLE IF EXISTS verification");
 db.run("DROP TABLE IF EXISTS user");
-db.run("DROP TABLE IF EXISTS users");
 
 // App tables
 db.run("DROP TABLE IF EXISTS tasks");
@@ -27,7 +26,7 @@ console.log("🏗️  Creating new tables...");
 // User
 // --------------------
 db.run(`
-  CREATE TABLE users (
+  CREATE TABLE user (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
@@ -108,7 +107,7 @@ db.run(`
       date TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(user_id, date),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
   );
 `);
 
@@ -126,7 +125,7 @@ db.run(`
     xp INTEGER NOT NULL,
     completed INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
   );
 `);
