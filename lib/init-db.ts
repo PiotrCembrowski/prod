@@ -5,7 +5,6 @@ import path from "path";
 const dbPath = path.join(process.cwd(), "mydb.sqlite");
 const db = new Database(dbPath, { create: true });
 
-// Enable foreign keys (IMPORTANT in SQLite)
 db.run("PRAGMA foreign_keys = ON");
 
 console.log("🗑️  Cleaning old tables...");
@@ -101,21 +100,21 @@ db.run(`
 // Days (one per user per date)
 // --------------------
 db.run(`
-    CREATE TABLE days (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      date TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(user_id, date),
-      FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-  );
+  CREATE TABLE IF NOT EXISTS days (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    date TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, date),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+  )
 `);
 
 // --------------------
 // Tasks
 // --------------------
 db.run(`
-  CREATE TABLE tasks (
+  CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT NOT NULL,
     day_id INTEGER NOT NULL,
@@ -127,7 +126,7 @@ db.run(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
-  );
+  )
 `);
 
 console.log("✅ Database initialized successfully!");

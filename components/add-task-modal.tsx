@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { Sparkles } from "lucide-react";
 
 import { SubmitButton } from "@/components/ui/submit-button";
 import { createTask } from "@/lib/actions";
+import { useActionState } from "react";
 
 const pointValues = [
   {
@@ -57,8 +58,15 @@ export function AddTaskModal({ open, onOpenChange, id }: AddTaskModalProps) {
   const [description, setDescription] = useState("");
   const [xp, setXp] = useState("");
   const [customXp, setCustomXp] = useState("");
+  const [state, formAction] = useActionState(createTask, null);
 
   const selectedXp = customXp || xp;
+
+  useEffect(() => {
+    if (state?.success) {
+      onOpenChange(false);
+    }
+  }, [state, onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,7 +81,7 @@ export function AddTaskModal({ open, onOpenChange, id }: AddTaskModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <form action={createTask} className="space-y-6">
+        <form action={formAction} className="space-y-6">
           {/* Hidden server fields */}
           <input type="hidden" name="userId" value={id} />
           <input type="hidden" name="date" value="2026-01-05" />

@@ -3,88 +3,60 @@ import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 function xpToPriority(xp: number) {
-  if (xp <= 10) return 1; // Easy
-  if (xp <= 25) return 2; // Medium
-  if (xp <= 50) return 3; // Hard
-  return 4; // Epic
+  if (xp <= 10) return 1;
+  if (xp <= 25) return 2;
+  if (xp <= 50) return 3;
+  return 4;
 }
 
 export async function createTask(formData: FormData) {
   const userId = formData.get("userId") as string;
   const date = formData.get("date") as string;
-
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || "";
-  const xp = Number(formData.get("xp"));
+  const xpRaw = formData.get("xp");
+  const xp = Number(xpRaw);
 
-  if (!userId || !date || !title || !xp) {
+  if (!userId || !date || !title || !xpRaw || Number.isNaN(xp)) {
     throw new Error("Missing required fields");
   }
 
-  // 1️⃣ Ensure tables exist (safe to call multiple times)
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS days (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      date TEXT NOT NULL,
-      UNIQUE(user_id, date)
-    );
-
-    CREATE TABLE IF NOT EXISTS tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      day_id INTEGER NOT NULL,
-      title TEXT NOT NULL,
-      description TEXT,
-      priority INTEGER NOT NULL,
-      xp INTEGER NOT NULL,
-      completed INTEGER DEFAULT 0,
-      FOREIGN KEY (day_id) REFERENCES days(id)
-    );
-  `);
-
   const priority = xpToPriority(xp);
 
-  // 2️⃣ Transaction: find/create day + insert task
-  const transaction = db.transaction(() => {
-    const existingDay = db
-      .prepare(
-        `
-        SELECT id FROM days
-        WHERE user_id = ? AND date = ?
-      `
-      )
+  const tx = db.transaction(() => {
+    // 1️⃣ Find or create day
+    const day = db
+      .prepare(`SELECT id FROM days WHERE user_id = ? AND date = ?`)
       .get(userId, date) as { id: number } | undefined;
 
-    let dayId: number;
+    const dayId =
+      day?.id ??
+      Number(
+        db
+          .prepare(`INSERT INTO days (user_id, date) VALUES (?, ?)`)
+          .run(userId, date).lastInsertRowid
+      );
 
-    if (existingDay) {
-      dayId = existingDay.id;
-    } else {
-      const result = db
-        .prepare(
-          `
-          INSERT INTO days (user_id, date)
-          VALUES (?, ?)
-        `
-        )
-        .run(userId, date);
-
-      dayId = Number(result.lastInsertRowid);
-    }
-
+    // 2️⃣ Insert task
     db.prepare(
       `
-      INSERT INTO tasks (user_id, day_id, title, description, priority, xp)
+      INSERT INTO tasks (
+        user_id,
+        day_id,
+        title,
+        description,
+        priority,
+        xp
+      )
       VALUES (?, ?, ?, ?, ?, ?)
     `
     ).run(userId, dayId, title, description, priority, xp);
   });
 
-  transaction();
+  tx();
 
-  // 3️⃣ Refresh UI
   revalidatePath("/dashboard");
+  return { success: true };
 }
 
 export async function completeTask(taskId: number, userId: number) {
