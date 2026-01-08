@@ -14,12 +14,6 @@ export function DashboardTabs({ user }: any) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
-  console.log("🛡️ Knight Dashboard Loaded for:", user);
-
-  if (user) {
-    console.log("Knight Username:", user.name);
-  }
-
   return (
     <>
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
