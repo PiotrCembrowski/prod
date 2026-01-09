@@ -14,17 +14,16 @@ export async function createTask(formData: FormData) {
   const date = formData.get("date") as string;
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || "";
-  const xpRaw = formData.get("xp");
-  const xp = Number(xpRaw);
+  const xp = Number(formData.get("xp"));
 
-  if (!userId || !date || !title || !xpRaw || Number.isNaN(xp)) {
+  if (!userId || !date || !title || !xp) {
     throw new Error("Missing required fields");
   }
 
   const priority = xpToPriority(xp);
 
-  const tx = db.transaction(() => {
-    // 1️⃣ Find or create day
+  // ✅ server-only DB logic
+  const transaction = db.transaction(() => {
     const day = db
       .prepare(`SELECT id FROM days WHERE user_id = ? AND date = ?`)
       .get(userId, date) as { id: number } | undefined;
@@ -37,26 +36,17 @@ export async function createTask(formData: FormData) {
           .run(userId, date).lastInsertRowid
       );
 
-    // 2️⃣ Insert task
     db.prepare(
       `
-      INSERT INTO tasks (
-        user_id,
-        day_id,
-        title,
-        description,
-        priority,
-        xp
-      )
+      INSERT INTO tasks (user_id, day_id, title, description, priority, xp)
       VALUES (?, ?, ?, ?, ?, ?)
     `
     ).run(userId, dayId, title, description, priority, xp);
   });
 
-  tx();
+  transaction();
 
   revalidatePath("/dashboard");
-  return { success: true };
 }
 
 export async function completeTask(taskId: number, userId: number) {

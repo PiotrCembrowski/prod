@@ -1,10 +1,7 @@
-import { Database } from "bun:sqlite";
-import path from "path";
+import postgres from "postgres";
 
-const dbPath = path.join(process.cwd(), "mydb.sqlite");
+const sql = postgres(process.env.DATABASE_URL!, {
+  ssl: process.env.NODE_ENV === "production",
+});
 
-const db = new Database(dbPath, { create: true });
-
-db.run("PRAGMA foreign_keys = ON;");
-
-export default db;
+export default sql;
