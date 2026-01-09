@@ -1,5 +1,6 @@
 "use server";
-import db from "@/lib/db";
+
+import "server-only";
 import sql from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
@@ -59,22 +60,13 @@ export async function completeTask(taskId: number, userId: number) {
   revalidatePath("/dashboard");
 }
 
-export async function toggleTask(taskId: number) {
-  await sql`
-    UPDATE tasks
-    SET completed = NOT completed
-    WHERE id = ${taskId}
-  `;
-
+export async function toggleTask(id: number) {
+  await sql`UPDATE tasks SET completed = NOT completed WHERE id = ${id}`;
   revalidatePath("/dashboard");
 }
 
-export async function deleteTask(taskId: number) {
-  await sql`
-    DELETE FROM tasks
-    WHERE id = ${taskId}
-  `;
-
+export async function deleteTask(id: number) {
+  await sql`DELETE FROM tasks WHERE id = ${id}`;
   revalidatePath("/dashboard");
 }
 

@@ -1,4 +1,4 @@
-import { DashboardTabs } from "@/components/dashboard-tabs";
+import DashboardShell from "@/components/dashboard-tabs";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardTabs user={user} />
+      <DashboardShell user={user} />
     </div>
   );
 }

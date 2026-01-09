@@ -1,6 +1,5 @@
 "use server";
-
-import db from "@/lib/db";
+import sql from "@/lib/db";
 
 export type Task = {
   id: number;
@@ -11,21 +10,17 @@ export type Task = {
   created_at: string;
 };
 
-export async function getTasksForUser(userId: string) {
-  return db
-    .prepare(
-      `
-      SELECT
-        id,
-        title,
-        description,
-        xp,
-        completed,
-        created_at
-      FROM tasks
-      WHERE user_id = ?
-      ORDER BY created_at DESC
-    `
-    )
-    .all(userId) as Task[];
+export async function getTasks(userId: string) {
+  return sql`
+    SELECT
+      id,
+      title AS name,
+      description,
+      xp AS points,
+      completed,
+      created_at AS "createdAt"
+    FROM tasks
+    WHERE user_id = ${userId}
+    ORDER BY created_at DESC
+  `;
 }

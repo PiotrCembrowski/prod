@@ -2,89 +2,48 @@
 
 import { useState } from "react";
 import { Crown, ScrollText, Trophy, Plus } from "lucide-react";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { AddTaskModal } from "@/components/add-task-modal";
-import { AchievementsTab } from "@/components/achievements-tab";
-import { KnightDashboard } from "@/components/knight-dashboard";
+import TasksTab from "./tasks-tab";
+import { AchievementsTab } from "./achievements-tab";
+import { KnightDashboard } from "./knight-dashboard";
 import { logOutKnight } from "@/app/login/action";
-import { TasksTab } from "@/components/tasks-tab";
 
-type Props = {
-  user: {
-    id: string;
-    name?: string | null;
-    email?: string | null;
-  };
-};
-
-export function DashboardShell({ user }: Props) {
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "tasks" | "achievements"
-  >("overview");
-
+export default function DashboardShell({ user }: any) {
+  const [activeTab, setActiveTab] = useState("overview");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
   return (
     <>
-      {/* Top Nav */}
-      <nav className="sticky top-0 z-50 border-b border-border bg-card/60 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <Crown className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Knight Quest</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              className="gap-2"
-              onClick={() => setIsAddTaskOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Add Quest
-            </Button>
-
-            <Button variant="ghost" size="sm" onClick={logOutKnight}>
-              Log out
-            </Button>
-          </div>
+      <nav className="border-b">
+        <div className="flex justify-between p-4">
+          <Crown />
+          <Button onClick={() => setIsAddTaskOpen(true)}>
+            <Plus /> Add Quest
+          </Button>
         </div>
       </nav>
 
-      {/* Content */}
-      <main className="mx-auto max-w-7xl p-6">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-          <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="overview" className="gap-2">
-              <Crown className="h-4 w-4" /> Overview
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="gap-2">
-              <ScrollText className="h-4 w-4" /> Tasks
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="gap-2">
-              <Trophy className="h-4 w-4" /> Achievements
-            </TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="overview">
-            <KnightDashboard />
-          </TabsContent>
+        <TabsContent value="overview">
+          <KnightDashboard />
+        </TabsContent>
 
-          <TabsContent value="tasks">
-            {/* ✅ Server Component rendered safely */}
-            <TasksTab
-              userId={user.id}
-              onAddTask={() => setIsAddTaskOpen(true)}
-            />
-          </TabsContent>
+        <TabsContent value="tasks">
+          <TasksTab userId={user.id} />
+        </TabsContent>
 
-          <TabsContent value="achievements">
-            <AchievementsTab />
-          </TabsContent>
-        </Tabs>
-      </main>
+        <TabsContent value="achievements">
+          <AchievementsTab />
+        </TabsContent>
+      </Tabs>
 
       <AddTaskModal
         id={user.id}
