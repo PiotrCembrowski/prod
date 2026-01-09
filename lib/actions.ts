@@ -1,5 +1,6 @@
 "use server";
 import db from "@/lib/db";
+import sql from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 function xpToPriority(xp: number) {
@@ -22,29 +23,20 @@ export async function createTask(formData: FormData) {
 
   const priority = xpToPriority(xp);
 
-  // ✅ server-only DB logic
-  const transaction = db.transaction(() => {
-    const day = db
-      .prepare(`SELECT id FROM days WHERE user_id = ? AND date = ?`)
-      .get(userId, date) as { id: number } | undefined;
+  // 1️⃣ find or create day
+  const [day] = await sql`
+    INSERT INTO days (user_id, date)
+    VALUES (${userId}, ${date})
+    ON CONFLICT (user_id, date)
+    DO UPDATE SET date = EXCLUDED.date
+    RETURNING id
+  `;
 
-    const dayId =
-      day?.id ??
-      Number(
-        db
-          .prepare(`INSERT INTO days (user_id, date) VALUES (?, ?)`)
-          .run(userId, date).lastInsertRowid
-      );
-
-    db.prepare(
-      `
-      INSERT INTO tasks (user_id, day_id, title, description, priority, xp)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `
-    ).run(userId, dayId, title, description, priority, xp);
-  });
-
-  transaction();
+  // 2️⃣ create task
+  await sql`
+    INSERT INTO tasks (user_id, day_id, title, description, xp, priority)
+    VALUES (${userId}, ${day.id}, ${title}, ${description}, ${xp}, ${priority})
+  `;
 
   revalidatePath("/dashboard");
 }

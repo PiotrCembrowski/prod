@@ -1,14 +1,5 @@
-import db from "@/lib/db";
+import sql from "@/lib/db";
 import { TasksTabClient } from "./tasks-tab-client";
-
-type Task = {
-  id: number;
-  title: string;
-  description: string | null;
-  xp: number;
-  completed: number;
-  created_at: string;
-};
 
 export default async function TasksTab({
   userId,
@@ -17,22 +8,18 @@ export default async function TasksTab({
   userId: string;
   onAddTask: () => void;
 }) {
-  const tasks = db
-    .prepare(
-      `
-      SELECT
-        id,
-        title,
-        description,
-        xp,
-        completed,
-        created_at
-      FROM tasks
-      WHERE user_id = ?
-      ORDER BY created_at DESC
-    `
-    )
-    .all(userId) as Task[];
+  const tasks = await sql`
+    SELECT
+      id,
+      title,
+      description,
+      xp,
+      completed,
+      created_at
+    FROM tasks
+    WHERE user_id = ${userId}
+    ORDER BY created_at DESC
+  `;
 
   return (
     <TasksTabClient
@@ -41,7 +28,7 @@ export default async function TasksTab({
         name: t.title,
         description: t.description ?? undefined,
         points: t.xp,
-        completed: Boolean(t.completed),
+        completed: t.completed,
         createdAt: t.created_at,
       }))}
       onAddTask={onAddTask}

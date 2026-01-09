@@ -1,138 +1,109 @@
-import { Database } from "bun:sqlite";
-import path from "path";
+import postgres from "postgres";
 
-// Absolute DB path
-const dbPath = path.join(process.cwd(), "mydb.sqlite");
-const db = new Database(dbPath, { create: true });
+const sql = postgres(process.env.DATABASE_URL!);
 
-db.run("PRAGMA foreign_keys = ON");
+async function init() {
+  console.log("🗑️  Cleaning old tables...");
 
-console.log("🗑️  Cleaning old tables...");
+  await sql`DROP TABLE IF EXISTS tasks CASCADE`;
+  await sql`DROP TABLE IF EXISTS days CASCADE`;
+  await sql`DROP TABLE IF EXISTS session CASCADE`;
+  await sql`DROP TABLE IF EXISTS account CASCADE`;
+  await sql`DROP TABLE IF EXISTS verification CASCADE`;
+  await sql`DROP TABLE IF EXISTS "user" CASCADE`;
 
-// Auth / core tables
-db.run("DROP TABLE IF EXISTS session");
-db.run("DROP TABLE IF EXISTS account");
-db.run("DROP TABLE IF EXISTS verification");
-db.run("DROP TABLE IF EXISTS user");
+  console.log("🏗️  Creating new tables...");
 
-// App tables
-db.run("DROP TABLE IF EXISTS tasks");
-db.run("DROP TABLE IF EXISTS days");
+  await sql`
+    CREATE TABLE "user" (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+      image TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      health INTEGER DEFAULT 10,
+      strength INTEGER DEFAULT 5,
+      defense INTEGER DEFAULT 5,
+      speed INTEGER DEFAULT 5,
+      wisdom INTEGER DEFAULT 5,
+      experience INTEGER DEFAULT 0,
+      level INTEGER DEFAULT 1
+    )
+  `;
 
-console.log("🏗️  Creating new tables...");
+  await sql`
+    CREATE TABLE session (
+      id TEXT PRIMARY KEY,
+      expires_at TIMESTAMP NOT NULL,
+      token TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMP NOT NULL,
+      updated_at TIMESTAMP NOT NULL,
+      ip_address TEXT,
+      user_agent TEXT,
+      user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+    )
+  `;
 
-// --------------------
-// User
-// --------------------
-db.run(`
-  CREATE TABLE user (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    emailVerified BOOLEAN NOT NULL DEFAULT 0,
-    image TEXT,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    health INTEGER DEFAULT 10,
-    strength INTEGER DEFAULT 5,
-    defense INTEGER DEFAULT 5,
-    speed INTEGER DEFAULT 5,
-    wisdom INTEGER DEFAULT 5,
-    experience INTEGER DEFAULT 0,
-    level INTEGER DEFAULT 1
-  )
-`);
+  await sql`
+    CREATE TABLE account (
+      id TEXT PRIMARY KEY,
+      account_id TEXT NOT NULL,
+      provider_id TEXT NOT NULL,
+      user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+      access_token TEXT,
+      refresh_token TEXT,
+      id_token TEXT,
+      access_token_expires_at TIMESTAMP,
+      refresh_token_expires_at TIMESTAMP,
+      scope TEXT,
+      password TEXT,
+      created_at TIMESTAMP NOT NULL,
+      updated_at TIMESTAMP NOT NULL
+    )
+  `;
 
-// --------------------
-// Session
-// --------------------
-db.run(`
-  CREATE TABLE session (
-    id TEXT PRIMARY KEY,
-    expiresAt DATETIME NOT NULL,
-    token TEXT NOT NULL UNIQUE,
-    createdAt DATETIME NOT NULL,
-    updatedAt DATETIME NOT NULL,
-    ipAddress TEXT,
-    userAgent TEXT,
-    userId TEXT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE
-  )
-`);
+  await sql`
+    CREATE TABLE verification (
+      id TEXT PRIMARY KEY,
+      identifier TEXT NOT NULL,
+      value TEXT NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      created_at TIMESTAMP,
+      updated_at TIMESTAMP
+    )
+  `;
 
-// --------------------
-// Account
-// --------------------
-db.run(`
-  CREATE TABLE account (
-    id TEXT PRIMARY KEY,
-    accountId TEXT NOT NULL,
-    providerId TEXT NOT NULL,
-    userId TEXT NOT NULL,
-    accessToken TEXT,
-    refreshToken TEXT,
-    idToken TEXT,
-    accessTokenExpiresAt DATETIME,
-    refreshTokenExpiresAt DATETIME,
-    scope TEXT,
-    password TEXT,
-    createdAt DATETIME NOT NULL,
-    updatedAt DATETIME NOT NULL,
-    FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE
-  )
-`);
+  await sql`
+    CREATE TABLE days (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+      date DATE NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE (user_id, date)
+    )
+  `;
 
-// --------------------
-// Verification
-// --------------------
-db.run(`
-  CREATE TABLE verification (
-    id TEXT PRIMARY KEY,
-    identifier TEXT NOT NULL,
-    value TEXT NOT NULL,
-    expiresAt DATETIME NOT NULL,
-    createdAt DATETIME,
-    updatedAt DATETIME
-  )
-`);
+  await sql`
+    CREATE TABLE tasks (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+      day_id INTEGER NOT NULL REFERENCES days(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      description TEXT,
+      priority INTEGER NOT NULL,
+      xp INTEGER NOT NULL,
+      completed BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
 
-// --------------------
-// Days (one per user per date)
-// --------------------
-db.run(`
-  CREATE TABLE IF NOT EXISTS days (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    date TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id, date),
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-  )
-`);
+  console.log("✅ Database initialized successfully");
+  process.exit(0);
+}
 
-// --------------------
-// Tasks
-// --------------------
-db.run(`
-  CREATE TABLE IF NOT EXISTS tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    day_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    priority INTEGER NOT NULL,
-    xp INTEGER NOT NULL,
-    completed INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-    FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
-  )
-`);
-
-console.log("✅ Database initialized successfully!");
-console.log(
-  "📋 Tables found:",
-  db.query("SELECT name FROM sqlite_master WHERE type='table'").all()
-);
-
-export { db };
+init().catch((err) => {
+  console.error("❌ DB init failed:", err);
+  process.exit(1);
+});
