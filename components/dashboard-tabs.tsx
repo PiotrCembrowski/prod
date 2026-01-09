@@ -6,12 +6,12 @@ import { Crown, ScrollText, Trophy, Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { AddTaskModal } from "@/components/add-task-modal";
-import TasksTab from "@/components/tasks-tab"; // ✅ server component
 import { AchievementsTab } from "@/components/achievements-tab";
 import { KnightDashboard } from "@/components/knight-dashboard";
 import { logOutKnight } from "@/app/login/action";
+import { TasksTab } from "@/components/tasks-tab";
 
-type DashboardTabsProps = {
+type Props = {
   user: {
     id: string;
     name?: string | null;
@@ -19,7 +19,7 @@ type DashboardTabsProps = {
   };
 };
 
-export function DashboardTabs({ user }: DashboardTabsProps) {
+export function DashboardShell({ user }: Props) {
   const [activeTab, setActiveTab] = useState<
     "overview" | "tasks" | "achievements"
   >("overview");
@@ -28,7 +28,7 @@ export function DashboardTabs({ user }: DashboardTabsProps) {
 
   return (
     <>
-      {/* Top Navigation */}
+      {/* Top Nav */}
       <nav className="sticky top-0 z-50 border-b border-border bg-card/60 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
@@ -53,27 +53,18 @@ export function DashboardTabs({ user }: DashboardTabsProps) {
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Content */}
       <main className="mx-auto max-w-7xl p-6">
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as typeof activeTab)}
-          className="space-y-6"
-        >
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="overview" className="gap-2">
-              <Crown className="h-4 w-4" />
-              Overview
+              <Crown className="h-4 w-4" /> Overview
             </TabsTrigger>
-
             <TabsTrigger value="tasks" className="gap-2">
-              <ScrollText className="h-4 w-4" />
-              Tasks
+              <ScrollText className="h-4 w-4" /> Tasks
             </TabsTrigger>
-
             <TabsTrigger value="achievements" className="gap-2">
-              <Trophy className="h-4 w-4" />
-              Achievements
+              <Trophy className="h-4 w-4" /> Achievements
             </TabsTrigger>
           </TabsList>
 
@@ -82,7 +73,7 @@ export function DashboardTabs({ user }: DashboardTabsProps) {
           </TabsContent>
 
           <TabsContent value="tasks">
-            {/* ✅ Server component pulls tasks from DB */}
+            {/* ✅ Server Component rendered safely */}
             <TasksTab
               userId={user.id}
               onAddTask={() => setIsAddTaskOpen(true)}
@@ -95,7 +86,6 @@ export function DashboardTabs({ user }: DashboardTabsProps) {
         </Tabs>
       </main>
 
-      {/* Add Task Modal */}
       <AddTaskModal
         id={user.id}
         open={isAddTaskOpen}

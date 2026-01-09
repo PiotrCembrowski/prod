@@ -1,37 +1,24 @@
 import sql from "@/lib/db";
 import { TasksTabClient } from "./tasks-tab-client";
 
-export default async function TasksTab({
-  userId,
-  onAddTask,
-}: {
+type Props = {
   userId: string;
   onAddTask: () => void;
-}) {
+};
+
+export async function TasksTab({ userId, onAddTask }: Props) {
   const tasks = await sql`
     SELECT
       id,
-      title,
+      title AS name,
       description,
-      xp,
+      xp AS points,
       completed,
-      created_at
+      created_at AS "createdAt"
     FROM tasks
     WHERE user_id = ${userId}
     ORDER BY created_at DESC
   `;
 
-  return (
-    <TasksTabClient
-      tasks={tasks.map((t) => ({
-        id: t.id,
-        name: t.title,
-        description: t.description ?? undefined,
-        points: t.xp,
-        completed: t.completed,
-        createdAt: t.created_at,
-      }))}
-      onAddTask={onAddTask}
-    />
-  );
+  return <TasksTabClient tasks={tasks} onAddTask={onAddTask} />;
 }

@@ -3,14 +3,7 @@ import db from "@/lib/db";
 import sql from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-function xpToPriority(xp: number) {
-  if (xp <= 10) return 1;
-  if (xp <= 25) return 2;
-  if (xp <= 50) return 3;
-  return 4;
-}
-
-export async function createTask(formData: FormData) {
+export async function createTask(_prevState: any, formData: FormData) {
   const userId = formData.get("userId") as string;
   const date = formData.get("date") as string;
   const title = formData.get("title") as string;
@@ -18,12 +11,10 @@ export async function createTask(formData: FormData) {
   const xp = Number(formData.get("xp"));
 
   if (!userId || !date || !title || !xp) {
-    throw new Error("Missing required fields");
+    return { success: false };
   }
 
-  const priority = xpToPriority(xp);
-
-  // 1️⃣ find or create day
+  // ensure day
   const [day] = await sql`
     INSERT INTO days (user_id, date)
     VALUES (${userId}, ${date})
@@ -32,13 +23,13 @@ export async function createTask(formData: FormData) {
     RETURNING id
   `;
 
-  // 2️⃣ create task
   await sql`
-    INSERT INTO tasks (user_id, day_id, title, description, xp, priority)
-    VALUES (${userId}, ${day.id}, ${title}, ${description}, ${xp}, ${priority})
+    INSERT INTO tasks (user_id, day_id, title, description, priority, xp)
+    VALUES (${userId}, ${day.id}, ${title}, ${description}, ${xp}, ${xp})
   `;
 
   revalidatePath("/dashboard");
+  return { success: true };
 }
 
 export async function completeTask(taskId: number, userId: number) {
@@ -64,6 +55,25 @@ export async function completeTask(taskId: number, userId: number) {
       "UPDATE users SET level = level + 1, health = health + 2 WHERE id = ?"
     ).run(userId);
   }
+
+  revalidatePath("/dashboard");
+}
+
+export async function toggleTask(taskId: number) {
+  await sql`
+    UPDATE tasks
+    SET completed = NOT completed
+    WHERE id = ${taskId}
+  `;
+
+  revalidatePath("/dashboard");
+}
+
+export async function deleteTask(taskId: number) {
+  await sql`
+    DELETE FROM tasks
+    WHERE id = ${taskId}
+  `;
 
   revalidatePath("/dashboard");
 }
