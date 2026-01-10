@@ -1,12 +1,19 @@
+import "server-only";
+
 import { betterAuth } from "better-auth";
-import { BunSqliteDialect } from "kysely-bun-worker/normal";
-import path from "path";
+import { PostgresDialect } from "kysely";
+import { Pool } from "pg";
 import { nextCookies } from "better-auth/next-js";
 
-const dbPath = path.join(process.cwd(), "mydb.sqlite");
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
-const dialect = new BunSqliteDialect({
-  url: dbPath,
+const dialect = new PostgresDialect({
+  pool,
 });
 
 export const auth = betterAuth({
