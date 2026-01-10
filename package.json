@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "migrate": "bun x @better-auth/cli migrate --config lib/fake-auth.ts",
-    "generate": "bun x @better-auth/cli generate --config lib/fake-auth.ts"
+    "generate": "bun x @better-auth/cli generate --config lib/fake-auth.ts",
+    "init-db": "bun run lib/init-db.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
