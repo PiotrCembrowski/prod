@@ -1,10 +1,9 @@
 "use server";
 
-import "server-only";
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createTask(_prevState: any, formData: FormData) {
+export async function createTask(formData: FormData) {
   const userId = formData.get("userId") as string;
   const date = formData.get("date") as string;
   const title = formData.get("title") as string;
@@ -12,10 +11,19 @@ export async function createTask(_prevState: any, formData: FormData) {
   const xp = Number(formData.get("xp"));
 
   if (!userId || !date || !title || !xp) {
-    return { success: false };
+    throw new Error("Missing required fields");
   }
 
-  // ensure day
+  // ✅ 0️⃣ Ensure user exists
+  const [user] = await sql`
+    SELECT id FROM "user" WHERE id = ${userId}
+  `;
+
+  if (!user) {
+    throw new Error("User does not exist in database");
+  }
+
+  // ✅ 1️⃣ Upsert day
   const [day] = await sql`
     INSERT INTO days (user_id, date)
     VALUES (${userId}, ${date})
@@ -24,13 +32,27 @@ export async function createTask(_prevState: any, formData: FormData) {
     RETURNING id
   `;
 
+  // ✅ 2️⃣ Insert task
   await sql`
-    INSERT INTO tasks (user_id, day_id, title, description, priority, xp)
-    VALUES (${userId}, ${day.id}, ${title}, ${description}, ${xp}, ${xp})
+    INSERT INTO tasks (
+      user_id,
+      day_id,
+      title,
+      description,
+      xp,
+      priority
+    )
+    VALUES (
+      ${userId},
+      ${day.id},
+      ${title},
+      ${description},
+      ${xp},
+      ${xp}
+    )
   `;
 
   revalidatePath("/dashboard");
-  return { success: true };
 }
 
 export async function completeTask(taskId: number, userId: number) {
