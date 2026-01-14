@@ -1,5 +1,4 @@
-import { betterAuth } from "better-auth";
-import { libsqlAdapter } from "better-auth/adapters/libsql/index.js";
+import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 
 const client = createClient({
@@ -7,6 +6,4 @@ const client = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-export const auth = betterAuth({
-  database: libsqlAdapter(client),
-});
+export const db = drizzle(client);
