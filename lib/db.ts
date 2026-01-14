@@ -1,6 +1,9 @@
-"use server";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
-export const sql = postgres(process.env.DATABASE_URL!, {
-  ssl: "require",
+export const client = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
+
+export const sql = drizzle(client);
