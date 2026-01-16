@@ -1,6 +1,6 @@
 "use server";
 
-import { sql } from "@/lib/db";
+import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function createTask(formData: FormData) {
@@ -15,7 +15,7 @@ export async function createTask(formData: FormData) {
   }
 
   // ✅ 0️⃣ Ensure user exists
-  const [user] = await sql`
+  const [user] = await db`
     SELECT id FROM "user" WHERE id = ${userId}
   `;
 

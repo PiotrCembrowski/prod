@@ -1,9 +1,9 @@
 "use server";
-import { sql } from "@/lib/db";
+import { db } from "@/lib/db";
 import TasksTabClient from "./tasks-tab-client";
 
 export default async function TasksTab({ userId }: { userId: string }) {
-  const tasks = await sql`
+  const tasks = await db`
     SELECT id, title, description, xp, completed
     FROM tasks
     WHERE user_id = ${userId}

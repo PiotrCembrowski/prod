@@ -6,10 +6,6 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
-import { sql } from "@/lib/db";
-
-await sql`SELECT 1`;
-
 export default async function HomePage() {
   const headersList = await headers();
   const session = await auth.api.getSession({

@@ -1,10 +1,12 @@
 "use server";
 
-import { sql } from "@/lib/db";
+import { db } from "@/lib/db";
 import DashboardShell from "@/components/dashboard-tabs";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { task } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 export default async function DashboardPage() {
   const headersList = await headers();
@@ -16,12 +18,7 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
 
-  const tasks = await sql`
-    SELECT id, title, description, xp, completed
-    FROM tasks
-    WHERE user_id = ${userId}
-    ORDER BY created_at DESC
-  `;
+  const userTasks = await db.select().from(task).where(eq(task.userId, userId));
 
-  return <DashboardShell user={{ id: userId }} tasks={tasks} />;
+  return <DashboardShell user={{ id: userId }} tasks={userTasks} />;
 }

@@ -1,9 +1,9 @@
-import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
 
-export const client = createClient({
+const client = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-export const sql = drizzle(client);
+export const db = drizzle(client);
