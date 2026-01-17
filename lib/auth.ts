@@ -5,10 +5,8 @@ import { db } from "@/lib/db";
 import { schema } from "@/lib/schema";
 
 export const auth = betterAuth({
-  plugins: [
-    drizzleAdapter(db, {
-      schema,
-      provider: "sqlite",
-    }),
-  ],
+  database: drizzleAdapter(db, {
+    schema,
+    provider: "sqlite",
+  }),
 });
