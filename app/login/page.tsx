@@ -8,11 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Shield, Sword } from "lucide-react";
 import { useActionState } from "react";
 import { loginKnight } from "./action";
+import type { LoginState } from "@/lib/types";
 
 export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState(loginKnight, {
-    error: null,
-  });
+  const [state, formAction, isPending] = useActionState<LoginState, FormData>(
+    loginKnight,
+    { error: null },
+  );
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">

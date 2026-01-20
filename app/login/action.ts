@@ -1,39 +1,26 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-
-export type ActionState = {
-  error?: string | null;
-};
+import { redirect } from "next/navigation";
+import type { LoginState } from "@/lib/types";
 
 export async function loginKnight(
-  _prevState: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  const rawFormData = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  console.log(
-    "Attempting to log in user:",
-    rawFormData.email,
-    rawFormData.password
-  );
+  prevState: LoginState,
+  formData: FormData,
+): Promise<LoginState> {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
   try {
     await auth.api.signInEmail({
-      body: {
-        email: rawFormData.email,
-        password: rawFormData.password,
-      },
+      body: { email, password },
       headers: await headers(),
     });
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Login failed";
-    return { error: errorMessage };
+    return {
+      error: err instanceof Error ? err.message : "Login failed",
+    };
   }
 
   redirect("/dashboard");
