@@ -1,26 +1,31 @@
 "use server";
-import sql from "@/lib/db";
+
+import { db } from "@/lib/db";
+import { task } from "@/lib/schema";
+import { desc, eq } from "drizzle-orm";
 
 export type Task = {
   id: number;
-  title: string;
+  name: string;
   description: string | null;
-  xp: number;
-  completed: number;
-  created_at: string;
+  points: number;
+  completed: boolean | null;
+  createdAt: Date | null;
 };
 
-export async function getTasks(userId: string) {
-  return sql`
-    SELECT
-      id,
-      title AS name,
-      description,
-      xp AS points,
-      completed,
-      created_at AS "createdAt"
-    FROM tasks
-    WHERE user_id = ${userId}
-    ORDER BY created_at DESC
-  `;
+export async function getTasks(userId: string): Promise<Task[]> {
+  const rows = await db
+    .select({
+      id: task.id,
+      name: task.title,
+      description: task.description,
+      points: task.xp,
+      completed: task.completed,
+      createdAt: task.createdAt,
+    })
+    .from(task)
+    .where(eq(task.userId, userId))
+    .orderBy(desc(task.createdAt));
+
+  return rows;
 }
