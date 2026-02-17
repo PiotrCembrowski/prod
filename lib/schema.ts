@@ -10,8 +10,12 @@ export const user = sqliteTable("user", {
   password: text("password"), // ✅ REQUIRED
   emailVerified: integer("emailVerified", { mode: "boolean" }).default(false),
   image: text("image"),
-  createdAt: integer("createdAt", { mode: "timestamp" }).defaultNow(),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).defaultNow(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(
+    () => new Date(),
+  ),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(
+    () => new Date(),
+  ),
 });
 
 /* =====================
@@ -82,7 +86,9 @@ export const day = sqliteTable("days", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   date: text("date").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+    () => new Date(),
+  ),
 });
 
 /* =====================
@@ -102,7 +108,9 @@ export const task = sqliteTable("tasks", {
   description: text("description"),
   xp: integer("xp").notNull(),
   completed: integer("completed", { mode: "boolean" }).default(false),
-  createdAt: integer("created_at", { mode: "timestamp" }).defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+    () => new Date(),
+  ),
 });
 
 /* =====================
