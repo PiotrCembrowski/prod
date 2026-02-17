@@ -76,6 +76,15 @@ export const verification = sqliteTable("verification", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }),
 });
 
+export const day = sqliteTable("days", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  date: text("date").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).defaultNow(),
+});
+
 /* =====================
    TASKS (APP-SPECIFIC)
 ===================== */
@@ -86,7 +95,9 @@ export const task = sqliteTable("tasks", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 
-  dayId: integer("day_id"),
+  dayId: integer("day_id")
+    .notNull()
+    .references(() => day.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   description: text("description"),
   xp: integer("xp").notNull(),
@@ -102,5 +113,6 @@ export const schema = {
   session,
   account,
   verification,
+  day,
   task,
 };

@@ -38,6 +38,7 @@ export function AddTaskModal({ open, onOpenChange, id }: AddTaskModalProps) {
   const [customXp, setCustomXp] = useState("");
 
   const selectedXp = customXp || xp;
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,7 +62,7 @@ export function AddTaskModal({ open, onOpenChange, id }: AddTaskModalProps) {
           className="space-y-6"
         >
           <input type="hidden" name="userId" value={id} />
-          <input type="hidden" name="date" value="2026-01-05" />
+          <input type="hidden" name="date" value={today} />
           <input type="hidden" name="xp" value={selectedXp} />
 
           <div className="space-y-2">
