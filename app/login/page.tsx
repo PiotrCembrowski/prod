@@ -1,20 +1,42 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signIn } from "@/lib/auth-client";
 import { Shield, Sword } from "lucide-react";
-import { useActionState } from "react";
-import { loginKnight } from "./action";
-import type { LoginState } from "@/lib/types";
 
 export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState<LoginState, FormData>(
-    loginKnight,
-    { error: null },
-  );
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    setError(null);
+    setIsSubmitting(true);
+
+    const { error: loginError } = await signIn.email({
+      email,
+      password,
+      callbackURL: "/dashboard",
+    });
+
+    if (loginError) {
+      setError(loginError.message || "Login failed");
+      setIsSubmitting(false);
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -33,7 +55,13 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form action={formAction} className="space-y-6">
+        <form action={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="email" className="text-card-foreground">
               Email
@@ -72,10 +100,11 @@ export default function LoginPage() {
 
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Sword className="mr-2 h-4 w-4" />
-            Enter the Realm
+            {isSubmitting ? "Entering..." : "Enter the Realm"}
           </Button>
         </form>
 
