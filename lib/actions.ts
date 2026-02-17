@@ -1,17 +1,26 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { task, user } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { day, task, user } from "@/lib/schema";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
+function normalizeXp(rawXp: FormDataEntryValue | null): number {
+  const xp = Number(rawXp);
+  if (!Number.isFinite(xp) || xp <= 0) {
+    throw new Error("Invalid XP value");
+  }
+  return xp;
+}
 
 export async function createTask(formData: FormData) {
   const userId = formData.get("userId") as string;
+  const date = formData.get("date") as string;
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || "";
-  const xp = Number(formData.get("xp"));
+  const xp = normalizeXp(formData.get("xp"));
 
-  if (!userId || !title || !xp) {
+  if (!userId || !date || !title) {
     throw new Error("Missing required fields");
   }
 
@@ -25,12 +34,39 @@ export async function createTask(formData: FormData) {
     throw new Error("User does not exist in database");
   }
 
-  await db.insert(task).values({
-    userId,
-    title,
-    description,
-    xp,
+  const dayId = await db.transaction(async (tx) => {
+    let [existingDay] = await tx
+      .select({ id: day.id })
+      .from(day)
+      .where(and(eq(day.userId, userId), eq(day.date, date)))
+      .limit(1);
+
+    if (!existingDay) {
+      const inserted = await tx.insert(day).values({ userId, date }).returning({
+        id: day.id,
+      });
+
+      [existingDay] = inserted;
+    }
+
+    if (!existingDay || typeof existingDay.id !== "number") {
+      throw new Error("Could not resolve day for task");
+    }
+
+    await tx.insert(task).values({
+      userId,
+      dayId: existingDay.id,
+      title,
+      description,
+      xp,
+    });
+
+    return existingDay.id;
   });
+
+  if (!dayId) {
+    throw new Error("Could not create task day reference");
+  }
 
   revalidatePath("/dashboard");
 }
@@ -42,7 +78,6 @@ export async function completeTask(taskId: number, userId: string) {
 }
 
 export async function toggleTask(id: number) {
-  await sql`UPDATE tasks SET completed = NOT completed WHERE id = ${id}`;
   const [existingTask] = await db
     .select({ completed: task.completed })
     .from(task)
