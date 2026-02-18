@@ -118,6 +118,7 @@ async function init() {
       title TEXT NOT NULL,
       description TEXT,
       priority INTEGER NOT NULL,
+      priority INTEGER NOT NULL DEFAULT 1,
       xp INTEGER NOT NULL,
       completed INTEGER DEFAULT 0,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,

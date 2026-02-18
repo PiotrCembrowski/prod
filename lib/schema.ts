@@ -106,6 +106,7 @@ export const task = sqliteTable("tasks", {
     .references(() => day.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   description: text("description"),
+  priority: integer("priority").notNull().default(1),
   xp: integer("xp").notNull(),
   completed: integer("completed", { mode: "boolean" }).default(false),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(

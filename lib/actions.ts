@@ -13,12 +13,20 @@ function normalizeXp(rawXp: FormDataEntryValue | null): number {
   return xp;
 }
 
+function derivePriorityFromXp(xp: number): number {
+  if (xp >= 100) return 4;
+  if (xp >= 50) return 3;
+  if (xp >= 25) return 2;
+  return 1;
+}
+
 export async function createTask(formData: FormData) {
   const userId = formData.get("userId") as string;
   const date = formData.get("date") as string;
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || "";
   const xp = normalizeXp(formData.get("xp"));
+  const priority = derivePriorityFromXp(xp);
 
   if (!userId || !date || !title) {
     throw new Error("Missing required fields");
@@ -58,6 +66,7 @@ export async function createTask(formData: FormData) {
       dayId: existingDay.id,
       title,
       description,
+      priority,
       xp,
     });
 
