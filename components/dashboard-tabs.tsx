@@ -16,7 +16,13 @@ export default function DashboardShell({
   tasks,
 }: {
   user: { id: string };
-  tasks: any[];
+  tasks: {
+    id: number;
+    title: string;
+    description: string | null;
+    xp: number;
+    completed: boolean;
+  }[];
 }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);

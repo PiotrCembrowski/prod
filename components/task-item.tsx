@@ -19,10 +19,12 @@ export function TaskItem({
   task,
   onToggle,
   onDelete,
+  disabled = false,
 }: {
   task: Task;
-  onToggle: (id: number) => void;
-  onDelete: (id: number) => void;
+  onToggle: (id: number) => void | Promise<void>;
+  onDelete: (id: number) => void | Promise<void>;
+  disabled?: boolean;
 }) {
   return (
     <div
@@ -30,11 +32,12 @@ export function TaskItem({
         "flex items-center gap-4 p-4 rounded-lg border transition-all",
         task.completed
           ? "bg-muted/50 border-muted opacity-75"
-          : "bg-card border-border hover:border-primary/50"
+          : "bg-card border-border hover:border-primary/50",
       )}
     >
       <Checkbox
         checked={task.completed}
+        disabled={disabled}
         onCheckedChange={() => onToggle(task.id)}
         className="h-5 w-5"
       />
@@ -45,7 +48,7 @@ export function TaskItem({
             "font-medium text-balance",
             task.completed
               ? "line-through text-muted-foreground"
-              : "text-foreground"
+              : "text-foreground",
           )}
         >
           {task.name}
@@ -63,12 +66,12 @@ export function TaskItem({
           task.completed
             ? ""
             : task.points >= 100
-            ? "bg-orange-500/10 text-orange-500 border-orange-500/20"
-            : task.points >= 50
-            ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-            : task.points >= 25
-            ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-            : "bg-green-500/10 text-green-500 border-green-500/20"
+              ? "bg-orange-500/10 text-orange-500 border-orange-500/20"
+              : task.points >= 50
+                ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                : task.points >= 25
+                  ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                  : "bg-green-500/10 text-green-500 border-green-500/20"
         }
       >
         {task.points} XP
@@ -77,6 +80,7 @@ export function TaskItem({
       <Button
         variant="ghost"
         size="icon"
+        disabled={disabled}
         onClick={() => onDelete(task.id)}
         className="text-muted-foreground hover:text-destructive"
       >
