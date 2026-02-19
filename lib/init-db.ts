@@ -48,6 +48,7 @@ async function init() {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
+      password TEXT,
       emailVerified INTEGER DEFAULT 0,
       image TEXT,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
