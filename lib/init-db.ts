@@ -5,6 +5,28 @@ const client = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+function assertNoDuplicateColumns(tableName: string, columns: string[]) {
+  const seen = new Set<string>();
+  const duplicates: string[] = [];
+
+  for (const definition of columns) {
+    const columnName = definition.trim().split(/\s+/)[0];
+
+    if (seen.has(columnName)) {
+      duplicates.push(columnName);
+      continue;
+    }
+
+    seen.add(columnName);
+  }
+
+  if (duplicates.length > 0) {
+    throw new Error(
+      `Duplicate column definition(s) for ${tableName}: ${duplicates.join(", ")}`,
+    );
+  }
+}
+
 async function init() {
   console.log("🗑️ Cleaning old tables...");
 
@@ -110,18 +132,23 @@ async function init() {
   // --------------------
   // Tasks
   // --------------------
+  const taskColumnDefinitions = [
+    "id INTEGER PRIMARY KEY AUTOINCREMENT",
+    "user_id TEXT NOT NULL",
+    "day_id INTEGER NOT NULL",
+    "title TEXT NOT NULL",
+    "description TEXT",
+    "priority INTEGER NOT NULL DEFAULT 1",
+    "xp INTEGER NOT NULL",
+    "completed INTEGER DEFAULT 0",
+    "created_at TEXT DEFAULT CURRENT_TIMESTAMP",
+  ];
+
+  assertNoDuplicateColumns("tasks", taskColumnDefinitions);
+
   await client.execute(`
     CREATE TABLE tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      day_id INTEGER NOT NULL,
-      title TEXT NOT NULL,
-      description TEXT,
-      priority INTEGER NOT NULL,
-      priority INTEGER NOT NULL DEFAULT 1,
-      xp INTEGER NOT NULL,
-      completed INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      ${taskColumnDefinitions.join(",\n      ")},
       FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
       FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
     )
