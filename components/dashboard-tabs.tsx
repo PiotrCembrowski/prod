@@ -80,7 +80,7 @@ export default function DashboardShell({
             </TabsContent>
 
             <TabsContent value="achievements">
-              <AchievementsTab />
+              <AchievementsTab tasks={tasks} />
             </TabsContent>
           </Tabs>
         </ClientOnly>

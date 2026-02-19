@@ -15,7 +15,7 @@ type AchievementTask = {
   completed: boolean;
 };
 
-export function AchievementsTab({ tasks }: { tasks: AchievementTask[] }) {
+export function AchievementsTab({ tasks = [] }: { tasks?: AchievementTask[] }) {
   const achievements = [
     {
       id: 1,
@@ -76,8 +76,9 @@ export function AchievementsTab({ tasks }: { tasks: AchievementTask[] }) {
   ];
 
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((task) => task.completed).length;
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const totalTasks = safeTasks.length;
+  const completedTasks = safeTasks.filter((task) => task.completed).length;
   const completionPercent =
     totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
