@@ -4,11 +4,18 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
 
-export function AchievementsTab() {
+type AchievementTask = {
+  id: number;
+  completed: boolean;
+};
+
+export function AchievementsTab({ tasks }: { tasks: AchievementTask[] }) {
   const achievements = [
     {
       id: 1,
@@ -69,6 +76,10 @@ export function AchievementsTab() {
   ];
 
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const completionPercent =
+    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
   return (
     <>
@@ -96,6 +107,15 @@ export function AchievementsTab() {
             </Badge>
           </div>
         </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Task completion</span>
+            <span className="font-medium">
+              {completedTasks} / {totalTasks} ({completionPercent}%)
+            </span>
+          </div>
+          <Progress value={completionPercent} />
+        </CardContent>
       </Card>
 
       <AchievementsList achievements={achievements} />
