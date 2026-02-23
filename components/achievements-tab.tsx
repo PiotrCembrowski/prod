@@ -41,16 +41,6 @@ export function AchievementsTab({ tasks = [] }: { tasks?: AchievementTask[] }) {
     {
       id: 4,
       name: "Time Warrior",
-      description: "Complete 100 tasks on time",
-      unlocked: true,
-      rarity: "rare" as const,
-    },
-    {
-      id: 5,
-      name: "Night Owl",
-      description: "Complete 10 tasks after 10 PM",
-      unlocked: false,
-      rarity: "common" as const,
     },
     {
       id: 6,
@@ -108,6 +98,7 @@ export function AchievementsTab({ tasks = [] }: { tasks?: AchievementTask[] }) {
             </Badge>
           </div>
         </CardHeader>
+
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Task completion</span>
