@@ -15,56 +15,21 @@ type AchievementTask = {
   completed: boolean;
 };
 
-export function AchievementsTab({ tasks = [] }: { tasks?: AchievementTask[] }) {
-  const achievements = [
-    {
-      id: 1,
-      name: "Early Bird",
-      description: "Complete 5 tasks before 9 AM",
-      unlocked: true,
-      rarity: "rare" as const,
-    },
-    {
-      id: 2,
-      name: "Streak Master",
-      description: "Maintain a 7-day streak",
-      unlocked: true,
-      rarity: "epic" as const,
-    },
-    {
-      id: 3,
-      name: "Dragon Slayer",
-      description: "Complete 50 difficult tasks",
-      unlocked: false,
-      rarity: "legendary" as const,
-    },
-    {
-      id: 4,
-      name: "Time Warrior",
-    },
-    {
-      id: 6,
-      name: "Speed Demon",
-      description: "Complete 20 tasks in one day",
-      unlocked: false,
-      rarity: "epic" as const,
-    },
-    {
-      id: 7,
-      name: "Perfectionist",
-      description: "Complete 30 tasks without missing deadline",
-      unlocked: true,
-      rarity: "rare" as const,
-    },
-    {
-      id: 8,
-      name: "Champion",
-      description: "Reach level 50",
-      unlocked: false,
-      rarity: "legendary" as const,
-    },
-  ];
+type Achievement = {
+  id: number;
+  name: string;
+  description: string;
+  unlocked: boolean;
+  rarity: "common" | "rare" | "epic" | "legendary";
+};
 
+export function AchievementsTab({
+  tasks = [],
+  achievements = [],
+}: {
+  tasks?: AchievementTask[];
+  achievements?: Achievement[];
+}) {
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
   const safeTasks = Array.isArray(tasks) ? tasks : [];
   const totalTasks = safeTasks.length;

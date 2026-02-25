@@ -155,6 +155,7 @@ async function init() {
     )
   `);
 
+
   console.log("✅ Database initialized successfully");
 }
 
