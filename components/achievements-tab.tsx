@@ -9,29 +9,26 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
-
-type AchievementTask = {
-  id: number;
-  completed: boolean;
-};
-
-type Achievement = {
-  id: number;
-  name: string;
-  description: string;
-  unlocked: boolean;
-  rarity: "common" | "rare" | "epic" | "legendary";
-};
+import {
+  buildAchievementsFromTasks,
+  type Achievement,
+  type AchievementTask,
+} from "@/lib/achievements";
 
 export function AchievementsTab({
   tasks = [],
-  achievements = [],
+  achievements,
 }: {
   tasks?: AchievementTask[];
   achievements?: Achievement[];
 }) {
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
   const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const resolvedAchievements =
+    achievements && achievements.length > 0
+      ? achievements
+      : buildAchievementsFromTasks(safeTasks);
+
+  const unlockedCount = resolvedAchievements.filter((a) => a.unlocked).length;
   const totalTasks = safeTasks.length;
   const completedTasks = safeTasks.filter((task) => task.completed).length;
   const completionPercent =
@@ -59,7 +56,7 @@ export function AchievementsTab({
               </CardDescription>
             </div>
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              {unlockedCount} / {achievements.length}
+              {unlockedCount} / {resolvedAchievements.length}
             </Badge>
           </div>
         </CardHeader>
@@ -75,7 +72,7 @@ export function AchievementsTab({
         </CardContent>
       </Card>
 
-      <AchievementsList achievements={achievements} />
+      <AchievementsList achievements={resolvedAchievements} tasks={safeTasks} />
     </>
   );
 }
