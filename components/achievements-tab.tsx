@@ -1,4 +1,4 @@
-import { Trophy } from "lucide-react";
+import { Trophy, CheckCircle2, Circle } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -9,11 +9,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
-import {
-  buildAchievementsFromTasks,
-  type Achievement,
-  type AchievementTask,
-} from "@/lib/achievements";
+
+type AchievementTask = {
+  id: number;
+  title: string;
+  description?: string | null;
+  xp: number;
+  completed: boolean;
+};
+
+type Achievement = {
+  id: number;
+  name: string;
+  description: string;
+  unlocked: boolean;
+  rarity: "common" | "rare" | "epic" | "legendary";
+};
 
 export function AchievementsTab({
   tasks = [],
