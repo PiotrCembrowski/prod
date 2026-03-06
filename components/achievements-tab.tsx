@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
+import { type Achievement, type AchievementTask } from "@/lib/achievements";
 
 type AchievementTask = {
   id: number;
@@ -18,13 +19,37 @@ type AchievementTask = {
   completed: boolean;
 };
 
-type Achievement = {
-  id: number;
-  name: string;
-  description: string;
-  unlocked: boolean;
-  rarity: "common" | "rare" | "epic" | "legendary";
-};
+  return [
+    {
+      id: 1,
+      name: "First Victory",
+      description: "Complete your first task",
+      unlocked: completedCount >= 1,
+      rarity: "common",
+    },
+    {
+      id: 2,
+      name: "Task Conqueror",
+      description: "Complete 10 tasks",
+      unlocked: completedCount >= 10,
+      rarity: "rare",
+    },
+    {
+      id: 3,
+      name: "XP Hoarder",
+      description: "Earn at least 100 XP from completed tasks",
+      unlocked: totalXp >= 100,
+      rarity: "epic",
+    },
+    {
+      id: 4,
+      name: "Elite Finisher",
+      description: "Finish 5 high-priority tasks",
+      unlocked: highPriorityCompleted >= 5,
+      rarity: "legendary",
+    },
+  ];
+}
 
 export function AchievementsTab({
   tasks = [],
