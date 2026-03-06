@@ -6,7 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import TasksTabClient from "./tasks-tab-client";
 
 export default async function TasksTab({ userId }: { userId: string }) {
-  const tasks = await db
+  const rawTasks = await db
     .select({
       id: task.id,
       title: task.title,
@@ -17,6 +17,11 @@ export default async function TasksTab({ userId }: { userId: string }) {
     .from(task)
     .where(eq(task.userId, userId))
     .orderBy(desc(task.createdAt));
+
+  const tasks = rawTasks.map((entry) => ({
+    ...entry,
+    completed: Boolean(entry.completed),
+  }));
 
   return <TasksTabClient tasks={tasks} />;
 }
