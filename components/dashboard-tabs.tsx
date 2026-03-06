@@ -14,7 +14,6 @@ import { ClientOnly } from "./client-only";
 export default function DashboardShell({
   user,
   tasks,
-  achievements,
 }: {
   user: { id: string };
   tasks: {
@@ -23,13 +22,7 @@ export default function DashboardShell({
     description: string | null;
     xp: number;
     completed: boolean;
-  }[];
-  achievements: {
-    id: number;
-    name: string;
-    description: string;
-    unlocked: boolean;
-    rarity: "common" | "rare" | "epic" | "legendary";
+    priority?: number;
   }[];
 }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -88,7 +81,7 @@ export default function DashboardShell({
             </TabsContent>
 
             <TabsContent value="achievements">
-              <AchievementsTab tasks={tasks} achievements={achievements} />
+              <AchievementsTab tasks={tasks} />
             </TabsContent>
           </Tabs>
         </ClientOnly>
