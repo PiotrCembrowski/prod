@@ -75,34 +75,6 @@ export function AchievementsTab({
             </span>
           </div>
           <Progress value={completionPercent} />
-
-          <div className="space-y-2 pt-2">
-            <p className="text-sm text-muted-foreground">Today&apos;s tasks</p>
-            {safeTasks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No tasks for today yet.</p>
-            ) : (
-              <ul className="space-y-2">
-                {safeTasks.map((task) => (
-                  <li
-                    key={task.id}
-                    className="flex items-center justify-between rounded-md border border-border px-3 py-2"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      {task.completed ? (
-                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                      ) : (
-                        <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-                      )}
-                      <span className="truncate text-sm">{task.title}</span>
-                    </div>
-                    <Badge variant="outline" className="shrink-0">
-                      {task.xp} XP
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </CardContent>
       </Card>
 
