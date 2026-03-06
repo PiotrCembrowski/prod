@@ -9,29 +9,62 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
+import { type Achievement, type AchievementTask } from "@/lib/achievements";
 
-type AchievementTask = {
-  id: number;
-  completed: boolean;
-};
+function deriveAchievements(tasks: AchievementTask[]): Achievement[] {
+  const completedTasks = tasks.filter((task) => task.completed);
+  const completedCount = completedTasks.length;
+  const totalXp = completedTasks.reduce((total, task) => total + task.xp, 0);
+  const highPriorityCompleted = completedTasks.filter(
+    (task) => (task.priority ?? 0) >= 3,
+  ).length;
 
-type Achievement = {
-  id: number;
-  name: string;
-  description: string;
-  unlocked: boolean;
-  rarity: "common" | "rare" | "epic" | "legendary";
-};
+  return [
+    {
+      id: 1,
+      name: "First Victory",
+      description: "Complete your first task",
+      unlocked: completedCount >= 1,
+      rarity: "common",
+    },
+    {
+      id: 2,
+      name: "Task Conqueror",
+      description: "Complete 10 tasks",
+      unlocked: completedCount >= 10,
+      rarity: "rare",
+    },
+    {
+      id: 3,
+      name: "XP Hoarder",
+      description: "Earn at least 100 XP from completed tasks",
+      unlocked: totalXp >= 100,
+      rarity: "epic",
+    },
+    {
+      id: 4,
+      name: "Elite Finisher",
+      description: "Finish 5 high-priority tasks",
+      unlocked: highPriorityCompleted >= 5,
+      rarity: "legendary",
+    },
+  ];
+}
 
 export function AchievementsTab({
   tasks = [],
-  achievements = [],
+  achievements,
 }: {
   tasks?: AchievementTask[];
   achievements?: Achievement[];
 }) {
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
   const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const resolvedAchievements =
+    achievements && achievements.length > 0
+      ? achievements
+      : deriveAchievements(safeTasks);
+
+  const unlockedCount = resolvedAchievements.filter((a) => a.unlocked).length;
   const totalTasks = safeTasks.length;
   const completedTasks = safeTasks.filter((task) => task.completed).length;
   const completionPercent =
@@ -59,7 +92,7 @@ export function AchievementsTab({
               </CardDescription>
             </div>
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              {unlockedCount} / {achievements.length}
+              {unlockedCount} / {resolvedAchievements.length}
             </Badge>
           </div>
         </CardHeader>
@@ -75,7 +108,7 @@ export function AchievementsTab({
         </CardContent>
       </Card>
 
-      <AchievementsList achievements={achievements} />
+      <AchievementsList achievements={resolvedAchievements} />
     </>
   );
 }
