@@ -1,4 +1,4 @@
-import { Trophy } from "lucide-react";
+import { Trophy, CheckCircle2, Circle } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -9,11 +9,47 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
-import {
-  buildAchievementsFromTasks,
-  type Achievement,
-  type AchievementTask,
-} from "@/lib/achievements";
+import { type Achievement, type AchievementTask } from "@/lib/achievements";
+
+type AchievementTask = {
+  id: number;
+  title: string;
+  description?: string | null;
+  xp: number;
+  completed: boolean;
+};
+
+  return [
+    {
+      id: 1,
+      name: "First Victory",
+      description: "Complete your first task",
+      unlocked: completedCount >= 1,
+      rarity: "common",
+    },
+    {
+      id: 2,
+      name: "Task Conqueror",
+      description: "Complete 10 tasks",
+      unlocked: completedCount >= 10,
+      rarity: "rare",
+    },
+    {
+      id: 3,
+      name: "XP Hoarder",
+      description: "Earn at least 100 XP from completed tasks",
+      unlocked: totalXp >= 100,
+      rarity: "epic",
+    },
+    {
+      id: 4,
+      name: "Elite Finisher",
+      description: "Finish 5 high-priority tasks",
+      unlocked: highPriorityCompleted >= 5,
+      rarity: "legendary",
+    },
+  ];
+}
 
 export function AchievementsTab({
   tasks = [],
@@ -72,7 +108,7 @@ export function AchievementsTab({
         </CardContent>
       </Card>
 
-      <AchievementsList achievements={resolvedAchievements} />
+      <AchievementsList achievements={resolvedAchievements} tasks={safeTasks} />
     </>
   );
 }
