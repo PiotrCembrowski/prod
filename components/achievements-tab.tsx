@@ -1,4 +1,4 @@
-import { Trophy } from "lucide-react";
+import { Trophy, CheckCircle2, Circle } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -11,13 +11,13 @@ import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
 import { type Achievement, type AchievementTask } from "@/lib/achievements";
 
-function deriveAchievements(tasks: AchievementTask[]): Achievement[] {
-  const completedTasks = tasks.filter((task) => task.completed);
-  const completedCount = completedTasks.length;
-  const totalXp = completedTasks.reduce((total, task) => total + task.xp, 0);
-  const highPriorityCompleted = completedTasks.filter(
-    (task) => (task.priority ?? 0) >= 3,
-  ).length;
+type AchievementTask = {
+  id: number;
+  title: string;
+  description?: string | null;
+  xp: number;
+  completed: boolean;
+};
 
   return [
     {
@@ -62,7 +62,7 @@ export function AchievementsTab({
   const resolvedAchievements =
     achievements && achievements.length > 0
       ? achievements
-      : deriveAchievements(safeTasks);
+      : buildAchievementsFromTasks(safeTasks);
 
   const unlockedCount = resolvedAchievements.filter((a) => a.unlocked).length;
   const totalTasks = safeTasks.length;
@@ -108,7 +108,7 @@ export function AchievementsTab({
         </CardContent>
       </Card>
 
-      <AchievementsList achievements={resolvedAchievements} />
+      <AchievementsList achievements={resolvedAchievements} tasks={safeTasks} />
     </>
   );
 }
