@@ -9,6 +9,7 @@ import { KnightCharacter } from "./knight-character";
 import { AchievementsList } from "./achievements-list";
 import { StatsChart } from "./stats-chart";
 import { QuestLog } from "./quest-log";
+import { type Achievement } from "@/lib/achievements";
 
 export function KnightDashboard() {
   // Mock data for knight progression
@@ -35,7 +36,7 @@ export function KnightDashboard() {
     ],
   };
 
-  const achievements = [
+  const achievements: Achievement[] = [
     {
       id: 1,
       name: "Early Bird",
@@ -66,7 +67,14 @@ export function KnightDashboard() {
     },
   ];
 
-  const quests = [
+  const quests: {
+    id: number;
+    title: string;
+    type: "daily" | "weekly";
+    progress: number;
+    total: number;
+    xp: number;
+  }[] = [
     {
       id: 1,
       title: "Morning Meditation",

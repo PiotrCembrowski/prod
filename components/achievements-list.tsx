@@ -1,14 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Lock, Sparkles } from "lucide-react";
-
-type Achievement = {
-  id: number;
-  name: string;
-  description: string;
-  unlocked: boolean;
-  rarity: "common" | "rare" | "epic" | "legendary";
-};
+import { type Achievement } from "@/lib/achievements";
 
 export function AchievementsList({
   achievements,
