@@ -1,4 +1,4 @@
-import { Trophy } from "lucide-react";
+import { Trophy, CheckCircle2, Circle } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -9,30 +9,64 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
-import {
-  buildAchievementsFromTasks,
-  type Achievement,
-  type AchievementTask as LibAchievementTask,
-} from "@/lib/achievements";
+import { type Achievement, type AchievementTask } from "@/lib/achievements";
 
-type AchievementsTabProps = {
-  tasks?: LibAchievementTask[];
-  achievements?: Achievement[];
+type AchievementTask = {
+  id: number;
+  title: string;
+  description?: string | null;
+  xp: number;
+  completed: boolean;
 };
+
+  return [
+    {
+      id: 1,
+      name: "First Victory",
+      description: "Complete your first task",
+      unlocked: completedCount >= 1,
+      rarity: "common",
+    },
+    {
+      id: 2,
+      name: "Task Conqueror",
+      description: "Complete 10 tasks",
+      unlocked: completedCount >= 10,
+      rarity: "rare",
+    },
+    {
+      id: 3,
+      name: "XP Hoarder",
+      description: "Earn at least 100 XP from completed tasks",
+      unlocked: totalXp >= 100,
+      rarity: "epic",
+    },
+    {
+      id: 4,
+      name: "Elite Finisher",
+      description: "Finish 5 high-priority tasks",
+      unlocked: highPriorityCompleted >= 5,
+      rarity: "legendary",
+    },
+  ];
+}
 
 export function AchievementsTab({
   tasks = [],
   achievements,
-}: AchievementsTabProps) {
-  const resolvedTasks = Array.isArray(tasks) ? tasks : [];
+}: {
+  tasks?: AchievementTask[];
+  achievements?: Achievement[];
+}) {
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
   const resolvedAchievements =
-    achievements?.length && achievements.length > 0
+    achievements && achievements.length > 0
       ? achievements
-      : buildAchievementsFromTasks(resolvedTasks);
+      : buildAchievementsFromTasks(safeTasks);
 
   const unlockedCount = resolvedAchievements.filter((a) => a.unlocked).length;
-  const totalTasks = resolvedTasks.length;
-  const completedTasks = resolvedTasks.filter((task) => task.completed).length;
+  const totalTasks = safeTasks.length;
+  const completedTasks = safeTasks.filter((task) => task.completed).length;
   const completionPercent =
     totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
@@ -74,7 +108,7 @@ export function AchievementsTab({
         </CardContent>
       </Card>
 
-      <AchievementsList achievements={resolvedAchievements} />
+      <AchievementsList achievements={resolvedAchievements} tasks={safeTasks} />
     </>
   );
 }
