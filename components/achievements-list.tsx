@@ -1,13 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Lock, Sparkles } from "lucide-react";
-import { type Achievement } from "@/lib/achievements";
+import {
+  buildAchievementsFromTasks,
+  type Achievement,
+  type AchievementTask,
+} from "@/lib/achievements";
 
 export function AchievementsList({
   achievements,
+  tasks = [],
 }: {
-  achievements: Achievement[];
+  achievements?: Achievement[];
+  tasks?: AchievementTask[];
 }) {
+  const resolvedAchievements =
+    achievements && achievements.length > 0
+      ? achievements
+      : buildAchievementsFromTasks(tasks);
+
   const rarityColors = {
     common: "bg-muted text-muted-foreground",
     rare: "bg-chart-3/20 text-chart-3 border-chart-3/50",
@@ -25,7 +36,7 @@ export function AchievementsList({
       </CardHeader>
       <CardContent>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {achievements.map((achievement) => (
+          {resolvedAchievements.map((achievement) => (
             <div
               key={achievement.id}
               className={`relative p-4 rounded-lg border transition-all ${
