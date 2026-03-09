@@ -9,31 +9,31 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
+import {
+  buildAchievementsFromTasks,
+  type Achievement,
+  type AchievementTask,
+} from "@/lib/achievements";
 
-type AchievementTask = {
-  id: number;
-  completed: boolean;
-};
-
-type Achievement = {
-  id: number;
-  name: string;
-  description: string;
-  unlocked: boolean;
-  rarity: "common" | "rare" | "epic" | "legendary";
+type AchievementsTabProps = {
+  tasks?: AchievementTask[];
+  achievements?: Achievement[];
 };
 
 export function AchievementsTab({
   tasks = [],
-  achievements = [],
-}: {
-  tasks?: AchievementTask[];
-  achievements?: Achievement[];
-}) {
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
-  const safeTasks = Array.isArray(tasks) ? tasks : [];
-  const totalTasks = safeTasks.length;
-  const completedTasks = safeTasks.filter((task) => task.completed).length;
+  achievements,
+}: AchievementsTabProps) {
+  const resolvedTasks = Array.isArray(tasks) ? tasks : [];
+  const hasProvidedAchievements =
+    Array.isArray(achievements) && achievements.length > 0;
+  const resolvedAchievements = hasProvidedAchievements
+    ? achievements
+    : buildAchievementsFromTasks(resolvedTasks);
+
+  const unlockedCount = resolvedAchievements.filter((a) => a.unlocked).length;
+  const totalTasks = resolvedTasks.length;
+  const completedTasks = resolvedTasks.filter((task) => task.completed).length;
   const completionPercent =
     totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
@@ -59,7 +59,7 @@ export function AchievementsTab({
               </CardDescription>
             </div>
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              {unlockedCount} / {achievements.length}
+              {unlockedCount} / {resolvedAchievements.length}
             </Badge>
           </div>
         </CardHeader>
@@ -75,7 +75,7 @@ export function AchievementsTab({
         </CardContent>
       </Card>
 
-      <AchievementsList achievements={achievements} />
+      <AchievementsList achievements={resolvedAchievements} />
     </>
   );
 }
