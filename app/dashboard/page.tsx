@@ -5,12 +5,8 @@ import DashboardShell from "@/components/dashboard-tabs";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { achievementDefinition, task } from "@/lib/schema";
-import { eq } from "drizzle-orm";
-import {
-  buildAchievementsFromTasks,
-  type AchievementDefinition,
-} from "@/lib/achievements";
+import { task } from "@/lib/schema";
+import { and, eq, gte, lt } from "drizzle-orm";
 
 export default async function DashboardPage() {
   const headersList = await headers();
@@ -21,22 +17,29 @@ export default async function DashboardPage() {
   }
 
   const userId = session.user.id;
-  const rawTasks = await db
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+  const userTasks = await db.select().from(task).where(eq(task.userId, userId));
+  const todayTasks = await db
     .select({
       id: task.id,
       title: task.title,
       description: task.description,
       xp: task.xp,
       completed: task.completed,
-      priority: task.priority,
     })
     .from(task)
-    .where(eq(task.userId, userId));
-
-  const userTasks = rawTasks.map((entry) => ({
-    ...entry,
-    completed: Boolean(entry.completed),
-  }));
+    .where(
+      and(
+        eq(task.userId, userId),
+        gte(task.createdAt, startOfToday),
+        lt(task.createdAt, startOfTomorrow),
+      ),
+    );
 
   const definitions = await db
     .select({
@@ -59,7 +62,7 @@ export default async function DashboardPage() {
   return (
     <DashboardShell
       user={{ id: userId }}
-      tasks={userTasks}
+      tasks={todayTasks}
       achievements={achievements}
     />
   );

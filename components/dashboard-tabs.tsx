@@ -15,7 +15,6 @@ import { type Achievement } from "@/lib/achievements";
 export default function DashboardShell({
   user,
   tasks,
-  achievements,
 }: {
   user: { id: string };
   tasks: {
@@ -26,7 +25,6 @@ export default function DashboardShell({
     completed: boolean;
     priority?: number;
   }[];
-  achievements: Achievement[];
 }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -84,7 +82,7 @@ export default function DashboardShell({
             </TabsContent>
 
             <TabsContent value="achievements">
-              <AchievementsTab tasks={tasks} achievements={achievements} />
+              <AchievementsTab tasks={tasks} />
             </TabsContent>
           </Tabs>
         </ClientOnly>
