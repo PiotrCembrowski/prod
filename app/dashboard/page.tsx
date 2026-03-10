@@ -41,43 +41,23 @@ export default async function DashboardPage() {
       ),
     );
 
-  const completedTasks = userTasks.filter((item) => item.completed);
-  const completedCount = completedTasks.length;
-  const totalXp = completedTasks.reduce((total, item) => total + item.xp, 0);
-  const highPriorityCompleted = completedTasks.filter(
-    (item) => item.priority >= 3,
-  ).length;
+  const definitions = await db
+    .select({
+      id: achievementDefinition.id,
+      name: achievementDefinition.name,
+      description: achievementDefinition.description,
+      rarity: achievementDefinition.rarity,
+      ruleType: achievementDefinition.ruleType,
+      threshold: achievementDefinition.threshold,
+      priorityThreshold: achievementDefinition.priorityThreshold,
+    })
+    .from(achievementDefinition)
+    .orderBy(achievementDefinition.id);
 
-  const achievements = [
-    {
-      id: 1,
-      name: "First Victory",
-      description: "Complete your first task",
-      unlocked: completedCount >= 1,
-      rarity: "common",
-    },
-    {
-      id: 2,
-      name: "Task Conqueror",
-      description: "Complete 10 tasks",
-      unlocked: completedCount >= 10,
-      rarity: "rare",
-    },
-    {
-      id: 3,
-      name: "XP Hoarder",
-      description: "Earn at least 100 XP from completed tasks",
-      unlocked: totalXp >= 100,
-      rarity: "epic",
-    },
-    {
-      id: 4,
-      name: "Elite Finisher",
-      description: "Finish 5 high-priority tasks",
-      unlocked: highPriorityCompleted >= 5,
-      rarity: "legendary",
-    },
-  ] as const;
+  const achievements = buildAchievementsFromTasks(
+    userTasks,
+    definitions as AchievementDefinition[],
+  );
 
   return (
     <DashboardShell

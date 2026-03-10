@@ -10,6 +10,7 @@ import { AchievementsTab } from "@/components/achievements-tab";
 import { KnightDashboard } from "@/components/knight-dashboard";
 import { logOutKnight } from "@/app/login/action";
 import { ClientOnly } from "./client-only";
+import { type Achievement } from "@/lib/achievements";
 
 export default function DashboardShell({
   user,

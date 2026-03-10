@@ -114,6 +114,21 @@ export const task = sqliteTable("tasks", {
   ),
 });
 
+
+export const achievementDefinition = sqliteTable("achievement_definitions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  rarity: text("rarity", {
+    enum: ["common", "rare", "epic", "legendary"],
+  }).notNull(),
+  ruleType: text("rule_type", {
+    enum: ["completed_count", "total_xp", "high_priority_completed"],
+  }).notNull(),
+  threshold: integer("threshold").notNull(),
+  priorityThreshold: integer("priority_threshold"),
+});
+
 /* =====================
    SCHEMA EXPORT (CRITICAL)
 ===================== */
@@ -124,4 +139,5 @@ export const schema = {
   verification,
   day,
   task,
+  achievementDefinition,
 };
