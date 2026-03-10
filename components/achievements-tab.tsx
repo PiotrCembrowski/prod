@@ -1,4 +1,4 @@
-import { Trophy, CheckCircle2, Circle } from "lucide-react";
+import { Trophy } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -11,13 +11,15 @@ import { Progress } from "@/components/ui/progress";
 import { AchievementsList } from "@/components/achievements-list";
 import { type Achievement, type AchievementTask } from "@/lib/achievements";
 
-type AchievementTask = {
-  id: number;
-  title: string;
-  description?: string | null;
-  xp: number;
-  completed: boolean;
-};
+function buildAchievementsFromTasks(tasks: AchievementTask[]): Achievement[] {
+  const completedTasks = tasks.filter((t) => t.completed);
+  const completedCount = completedTasks.length;
+
+  const totalXp = completedTasks.reduce((sum, task) => sum + (task.xp ?? 0), 0);
+
+  const highPriorityCompleted = completedTasks.filter(
+    (task) => task.xp >= 50, // simple heuristic for "high priority"
+  ).length;
 
   return [
     {
@@ -59,14 +61,17 @@ export function AchievementsTab({
   achievements?: Achievement[];
 }) {
   const safeTasks = Array.isArray(tasks) ? tasks : [];
+
   const resolvedAchievements =
     achievements && achievements.length > 0
       ? achievements
       : buildAchievementsFromTasks(safeTasks);
 
   const unlockedCount = resolvedAchievements.filter((a) => a.unlocked).length;
+
   const totalTasks = safeTasks.length;
   const completedTasks = safeTasks.filter((task) => task.completed).length;
+
   const completionPercent =
     totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
@@ -104,6 +109,7 @@ export function AchievementsTab({
               {completedTasks} / {totalTasks} ({completionPercent}%)
             </span>
           </div>
+
           <Progress value={completionPercent} />
         </CardContent>
       </Card>
