@@ -5,8 +5,12 @@ import DashboardShell from "@/components/dashboard-tabs";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { task } from "@/lib/schema";
+import { schema } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import {
+  buildAchievementsFromTasks,
+  type AchievementDefinition,
+} from "@/lib/achievements";
 
 export default async function DashboardPage() {
   const headersList = await headers();
@@ -17,46 +21,40 @@ export default async function DashboardPage() {
   }
 
   const userId = session.user.id;
+  const rawTasks = await db
+    .select({
+      id: schema.task.id,
+      title: schema.task.title,
+      description: schema.task.description,
+      xp: schema.task.xp,
+      completed: schema.task.completed,
+      priority: schema.task.priority,
+    })
+    .from(schema.task)
+    .where(eq(schema.task.userId, userId));
 
-  const userTasks = await db.select().from(task).where(eq(task.userId, userId));
+  const userTasks = rawTasks.map((entry) => ({
+    ...entry,
+    completed: Boolean(entry.completed),
+  }));
 
-  const completedTasks = userTasks.filter((item) => item.completed);
-  const completedCount = completedTasks.length;
-  const totalXp = completedTasks.reduce((total, item) => total + item.xp, 0);
-  const highPriorityCompleted = completedTasks.filter(
-    (item) => item.priority >= 3,
-  ).length;
+  const definitions = await db
+    .select({
+      id: schema.achievementDefinition.id,
+      name: schema.achievementDefinition.name,
+      description: schema.achievementDefinition.description,
+      rarity: schema.achievementDefinition.rarity,
+      ruleType: schema.achievementDefinition.ruleType,
+      threshold: schema.achievementDefinition.threshold,
+      priorityThreshold: schema.achievementDefinition.priorityThreshold,
+    })
+    .from(schema.achievementDefinition)
+    .orderBy(schema.achievementDefinition.id);
 
-  const achievements = [
-    {
-      id: 1,
-      name: "First Victory",
-      description: "Complete your first task",
-      unlocked: completedCount >= 1,
-      rarity: "common",
-    },
-    {
-      id: 2,
-      name: "Task Conqueror",
-      description: "Complete 10 tasks",
-      unlocked: completedCount >= 10,
-      rarity: "rare",
-    },
-    {
-      id: 3,
-      name: "XP Hoarder",
-      description: "Earn at least 100 XP from completed tasks",
-      unlocked: totalXp >= 100,
-      rarity: "epic",
-    },
-    {
-      id: 4,
-      name: "Elite Finisher",
-      description: "Finish 5 high-priority tasks",
-      unlocked: highPriorityCompleted >= 5,
-      rarity: "legendary",
-    },
-  ] as const;
+  const achievements = buildAchievementsFromTasks(
+    userTasks,
+    definitions as AchievementDefinition[],
+  );
 
   return (
     <DashboardShell
