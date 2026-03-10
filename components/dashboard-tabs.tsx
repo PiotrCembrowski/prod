@@ -10,6 +10,7 @@ import { AchievementsTab } from "@/components/achievements-tab";
 import { KnightDashboard } from "@/components/knight-dashboard";
 import { logOutKnight } from "@/app/login/action";
 import { ClientOnly } from "./client-only";
+import { type Achievement } from "@/lib/achievements";
 
 export default function DashboardShell({
   user,
@@ -23,14 +24,9 @@ export default function DashboardShell({
     description: string | null;
     xp: number;
     completed: boolean;
+    priority?: number;
   }[];
-  achievements: {
-    id: number;
-    name: string;
-    description: string;
-    unlocked: boolean;
-    rarity: "common" | "rare" | "epic" | "legendary";
-  }[];
+  achievements: Achievement[];
 }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);

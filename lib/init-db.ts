@@ -32,6 +32,7 @@ async function init() {
 
   // Drop tables (order matters because of FKs)
   await client.execute(`DROP TABLE IF EXISTS tasks`);
+  await client.execute(`DROP TABLE IF EXISTS achievement_definitions`);
   await client.execute(`DROP TABLE IF EXISTS days`);
   await client.execute(`DROP TABLE IF EXISTS session`);
   await client.execute(`DROP TABLE IF EXISTS account`);
@@ -154,6 +155,33 @@ async function init() {
       FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
     )
   `);
+
+
+  // --------------------
+  // Achievement definitions
+  // --------------------
+  await client.execute(`
+    CREATE TABLE achievement_definitions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      rarity TEXT NOT NULL,
+      rule_type TEXT NOT NULL,
+      threshold INTEGER NOT NULL,
+      priority_threshold INTEGER
+    )
+  `);
+
+  await client.execute(`
+    INSERT INTO achievement_definitions
+      (name, description, rarity, rule_type, threshold, priority_threshold)
+    VALUES
+      ('First Victory', 'Complete your first task', 'common', 'completed_count', 1, NULL),
+      ('Task Conqueror', 'Complete 10 tasks', 'rare', 'completed_count', 10, NULL),
+      ('XP Hoarder', 'Earn at least 100 XP from completed tasks', 'epic', 'total_xp', 100, NULL),
+      ('Elite Finisher', 'Finish 5 high-priority tasks', 'legendary', 'high_priority_completed', 5, 3)
+  `);
+
 
 
   console.log("✅ Database initialized successfully");
