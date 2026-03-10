@@ -5,12 +5,8 @@ import DashboardShell from "@/components/dashboard-tabs";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { schema } from "@/lib/schema";
-import { eq } from "drizzle-orm";
-import {
-  buildAchievementsFromTasks,
-  type AchievementDefinition,
-} from "@/lib/achievements";
+import { task } from "@/lib/schema";
+import { and, eq, gte, lt } from "drizzle-orm";
 
 export default async function DashboardPage() {
   const headersList = await headers();
@@ -21,35 +17,42 @@ export default async function DashboardPage() {
   }
 
   const userId = session.user.id;
-  const rawTasks = await db
-    .select({
-      id: schema.task.id,
-      title: schema.task.title,
-      description: schema.task.description,
-      xp: schema.task.xp,
-      completed: schema.task.completed,
-      priority: schema.task.priority,
-    })
-    .from(schema.task)
-    .where(eq(schema.task.userId, userId));
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
 
-  const userTasks = rawTasks.map((entry) => ({
-    ...entry,
-    completed: Boolean(entry.completed),
-  }));
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+  const userTasks = await db.select().from(task).where(eq(task.userId, userId));
+  const todayTasks = await db
+    .select({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      xp: task.xp,
+      completed: task.completed,
+    })
+    .from(task)
+    .where(
+      and(
+        eq(task.userId, userId),
+        gte(task.createdAt, startOfToday),
+        lt(task.createdAt, startOfTomorrow),
+      ),
+    );
 
   const definitions = await db
     .select({
-      id: schema.achievementDefinition.id,
-      name: schema.achievementDefinition.name,
-      description: schema.achievementDefinition.description,
-      rarity: schema.achievementDefinition.rarity,
-      ruleType: schema.achievementDefinition.ruleType,
-      threshold: schema.achievementDefinition.threshold,
-      priorityThreshold: schema.achievementDefinition.priorityThreshold,
+      id: achievementDefinition.id,
+      name: achievementDefinition.name,
+      description: achievementDefinition.description,
+      rarity: achievementDefinition.rarity,
+      ruleType: achievementDefinition.ruleType,
+      threshold: achievementDefinition.threshold,
+      priorityThreshold: achievementDefinition.priorityThreshold,
     })
-    .from(schema.achievementDefinition)
-    .orderBy(schema.achievementDefinition.id);
+    .from(achievementDefinition)
+    .orderBy(achievementDefinition.id);
 
   const achievements = buildAchievementsFromTasks(
     userTasks,
@@ -59,7 +62,7 @@ export default async function DashboardPage() {
   return (
     <DashboardShell
       user={{ id: userId }}
-      tasks={userTasks}
+      tasks={todayTasks}
       achievements={achievements}
     />
   );

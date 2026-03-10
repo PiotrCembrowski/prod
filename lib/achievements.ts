@@ -1,20 +1,5 @@
 export type AchievementRarity = "common" | "rare" | "epic" | "legendary";
 
-export type AchievementRuleType =
-  | "completed_count"
-  | "total_xp"
-  | "high_priority_completed";
-
-export type AchievementDefinition = {
-  id: number;
-  name: string;
-  description: string;
-  rarity: AchievementRarity;
-  ruleType: AchievementRuleType;
-  threshold: number;
-  priorityThreshold?: number | null;
-};
-
 export type Achievement = {
   id: number;
   name: string;
@@ -29,66 +14,42 @@ export type AchievementTask = {
   priority?: number;
 };
 
-function evaluateAchievement(
-  definition: AchievementDefinition,
-  stats: {
-    completedCount: number;
-    totalXp: number;
-    highPriorityCompletedByThreshold: Record<number, number>;
-  },
-): boolean {
-  switch (definition.ruleType) {
-    case "completed_count":
-      return stats.completedCount >= definition.threshold;
-    case "total_xp":
-      return stats.totalXp >= definition.threshold;
-    case "high_priority_completed": {
-      const requiredPriority = definition.priorityThreshold ?? 3;
-      return (
-        (stats.highPriorityCompletedByThreshold[requiredPriority] ?? 0) >=
-        definition.threshold
-      );
-    }
-    default:
-      return false;
-  }
-}
-
-export function buildAchievementsFromTasks(
-  tasks: AchievementTask[],
-  definitions: AchievementDefinition[],
-): Achievement[] {
+export function buildAchievementsFromTasks(tasks: AchievementTask[]): Achievement[] {
   const completedTasks = tasks.filter((task) => task.completed);
+  const completedCount = completedTasks.length;
+  const totalXp = completedTasks.reduce((total, task) => total + task.xp, 0);
+  const highPriorityCompleted = completedTasks.filter(
+    (task) => (task.priority ?? 0) >= 3,
+  ).length;
 
-  const priorityLevels = new Set<number>(
-    definitions
-      .map((definition) => definition.priorityThreshold)
-      .filter((value): value is number => typeof value === "number"),
-  );
-
-  if (priorityLevels.size === 0) {
-    priorityLevels.add(3);
-  }
-
-  const highPriorityCompletedByThreshold = Object.fromEntries(
-    Array.from(priorityLevels).map((priorityThreshold) => [
-      priorityThreshold,
-      completedTasks.filter((task) => (task.priority ?? 0) >= priorityThreshold)
-        .length,
-    ]),
-  ) as Record<number, number>;
-
-  const stats = {
-    completedCount: completedTasks.length,
-    totalXp: completedTasks.reduce((total, task) => total + task.xp, 0),
-    highPriorityCompletedByThreshold,
-  };
-
-  return definitions.map((definition) => ({
-    id: definition.id,
-    name: definition.name,
-    description: definition.description,
-    rarity: definition.rarity,
-    unlocked: evaluateAchievement(definition, stats),
-  }));
+  return [
+    {
+      id: 1,
+      name: "First Victory",
+      description: "Complete your first task",
+      unlocked: completedCount >= 1,
+      rarity: "common",
+    },
+    {
+      id: 2,
+      name: "Task Conqueror",
+      description: "Complete 10 tasks",
+      unlocked: completedCount >= 10,
+      rarity: "rare",
+    },
+    {
+      id: 3,
+      name: "XP Hoarder",
+      description: "Earn at least 100 XP from completed tasks",
+      unlocked: totalXp >= 100,
+      rarity: "epic",
+    },
+    {
+      id: 4,
+      name: "Elite Finisher",
+      description: "Finish 5 high-priority tasks",
+      unlocked: highPriorityCompleted >= 5,
+      rarity: "legendary",
+    },
+  ];
 }
